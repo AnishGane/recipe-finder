@@ -17,7 +17,7 @@ const collectionSchema = new mongoose.Schema<ICollection>(
     },
     isPublic: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     recipeIds: [
       {

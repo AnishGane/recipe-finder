@@ -55,8 +55,6 @@ export const uploadImageToCloudinary = (
           reject(new Error(`Cloudinary upload failed: ${error.message}`));
         } else if (result) {
           console.log("Cloudinary upload successful");
-          console.log("URL:", result.secure_url);
-          console.log("Public ID:", result.public_id);
           resolve(result);
         } else {
           reject(new Error("Cloudinary upload failed: No result returned"));
@@ -104,7 +102,11 @@ export const extractPublicId = (url: string): string => {
 
     // Get everything after 'upload/v1234567890/'
     const relevantParts = parts.slice(uploadIndex + 2); // Skip 'upload' and version
-    const filename = relevantParts.join("/").split(".")[0]; // Remove extension
+    const fullPath = relevantParts.join("/");
+    // Remove only the file extension (last dot segment)
+    const lastDotIndex = fullPath.lastIndexOf(".");
+    const filename =
+      lastDotIndex !== -1 ? fullPath.substring(0, lastDotIndex) : fullPath;
 
     console.log("Extracted public ID:", filename);
     return filename;

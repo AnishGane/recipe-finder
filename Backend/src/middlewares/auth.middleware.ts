@@ -7,19 +7,25 @@ interface JWTPayload {
   userId: string;
 }
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
 export const auth = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    if (!JWT_SECRET) {
+      console.error("JWT_SECRET is not configured");
+      return res.status(500).json({ error: "Internal server error" });
+    }
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
       return res.status(401).send({ error: "Not authenticated" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {

@@ -60,11 +60,7 @@ export interface IRecipe extends Document {
   ingredients: IIngredient[];
   instructions: IInstruction[];
   tags: string[];
-  likedBy: Types.ObjectId[];
-  savedBy: Types.ObjectId[];
   ratings: Map<string, number>;
-  likeCount: number;
-  saveCount: number;
   viewCount: number;
   averageRating: number;
   ratingCount: number;

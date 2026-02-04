@@ -7,7 +7,12 @@ import authRouter from "./routes/auth.route";
 const app = express();
 
 // global middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // auth routes

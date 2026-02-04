@@ -12,9 +12,6 @@ import { generateSlug } from "../utils/helper";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log("Registration request received");
-    console.log("Body:", req.body);
-    console.log("File:", req.file);
     const { email, password, username, name } = req.body || {};
 
     // Validation
@@ -25,6 +22,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    if (password.length < 6) {
+      res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters long" });
+      return;
+    }
     // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { username }],
@@ -79,12 +82,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     await user.save();
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is not configured");
+      res.status(500).json({ error: "Server configuration error" });
+      return;
+    }
+
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id.toString() },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ userId: user._id.toString() }, jwtSecret, {
+      expiresIn: "7d",
+    });
 
     res.status(201).json({
       success: true,
@@ -129,12 +137,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is not configured");
+      res.status(500).json({ error: "Server configuration error" });
+      return;
+    }
+
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id.toString() },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ userId: user._id.toString() }, jwtSecret, {
+      expiresIn: "7d",
+    });
 
     res.json({
       success: true,
@@ -209,13 +222,7 @@ export const updateProfile = async (
     // Handle avatar upload if provided
     if (req.file) {
       try {
-        // Delete old avatar from Cloudinary if exists
-        if (user.avatar) {
-          const publicId = extractPublicId(user.avatar);
-          await deleteImageFromCloudinary(publicId);
-        }
-
-        // Upload new avatar
+        // Upload new avatar first
         const result = await uploadImageToCloudinary(req.file.buffer, {
           folder: "recipe-platform/avatars",
           transformation: [
@@ -224,7 +231,19 @@ export const updateProfile = async (
             { fetch_format: "auto" },
           ],
         });
+
+        // Delete old avatar from Cloudinary only after successful upload
+        const oldAvatar = user.avatar;
+
         user.avatar = result.secure_url;
+
+        // Clean up old avatar (fire-and-forget or log errors)
+        if (oldAvatar) {
+          const publicId = extractPublicId(oldAvatar);
+          deleteImageFromCloudinary(publicId).catch((err) =>
+            console.error("Failed to delete old avatar:", err)
+          );
+        }
       } catch (uploadError) {
         console.error("Avatar upload error:", uploadError);
         res.status(500).json({ error: "Failed to upload avatar" });
