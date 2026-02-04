@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { IRecipeLike } from "../types";
 
 const recipeLikeSchema = new mongoose.Schema(
   {
@@ -22,13 +23,6 @@ recipeLikeSchema.index({ recipe: 1, user: 1 }, { unique: true });
 recipeLikeSchema.index({ recipe: 1 });
 // Index on user for "recipes liked by user" queries
 recipeLikeSchema.index({ user: 1 });
-
-export interface IRecipeLike extends mongoose.Document {
-  recipe: mongoose.Types.ObjectId;
-  user: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 const RecipeLike = mongoose.model<IRecipeLike>("RecipeLike", recipeLikeSchema);
 export default RecipeLike;

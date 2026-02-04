@@ -81,6 +81,20 @@ export interface ICollection extends Document {
   updatedAt: Date;
 }
 
+export interface IRecipeLike extends Document {
+  recipe: Types.ObjectId;
+  user: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IRecipeSave extends Document {
+  recipe: Types.ObjectId;
+  user: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface AuthRequest extends Request {
   user?: IUser;
   userId?: Types.ObjectId;

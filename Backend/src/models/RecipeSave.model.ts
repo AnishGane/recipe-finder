@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { IRecipeSave } from "../types";
 
 const recipeSaveSchema = new mongoose.Schema(
   {
@@ -22,13 +23,6 @@ recipeSaveSchema.index({ recipe: 1, user: 1 }, { unique: true });
 recipeSaveSchema.index({ recipe: 1 });
 // Index on user for "recipes saved by user" queries
 recipeSaveSchema.index({ user: 1 });
-
-export interface IRecipeSave extends mongoose.Document {
-  recipe: mongoose.Types.ObjectId;
-  user: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 const RecipeSave = mongoose.model<IRecipeSave>("RecipeSave", recipeSaveSchema);
 export default RecipeSave;

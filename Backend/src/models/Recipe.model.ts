@@ -3,31 +3,37 @@ import { IIngredient, IRecipe } from "../types";
 import RecipeLike from "./RecipeLike.model";
 import RecipeSave from "./RecipeSave.model";
 
-const ingredientSchema = new mongoose.Schema<IIngredient>({
-  name: {
-    type: String,
-    required: true,
+const ingredientSchema = new mongoose.Schema<IIngredient>(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    unit: {
+      type: String,
+      required: true,
+    },
+    notes: {
+      type: String,
+      default: "",
+    },
   },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  unit: {
-    type: String,
-    required: true,
-  },
-  notes: {
-    type: String,
-    default: "",
-  },
-},{_id: false});
+  { _id: false }
+);
 
-const instructionSchema = new mongoose.Schema({
-  step: { type: Number, required: true },
-  description: { type: String, required: true },
-  image: { type: String },
-  duration: { type: Number },
-},{_id: false});
+const instructionSchema = new mongoose.Schema(
+  {
+    step: { type: Number, required: true },
+    description: { type: String, required: true },
+    image: { type: String },
+    duration: { type: Number },
+  },
+  { _id: false }
+);
 
 const recipeSchema = new mongoose.Schema(
   {
@@ -126,39 +132,69 @@ recipeSchema.index({ cuisine: 1 });
 recipeSchema.index({ isPublished: 1, publishedAt: -1 });
 
 // Referential cleanup: when a Recipe is deleted, remove all RecipeLike and RecipeSave entries
-const cleanupRecipeLikesAndSaves = async (recipeId: mongoose.Types.ObjectId) => {
+const cleanupRecipeLikesAndSaves = async (
+  recipeId: mongoose.Types.ObjectId
+) => {
   await RecipeLike.deleteMany({ recipe: recipeId });
   await RecipeSave.deleteMany({ recipe: recipeId });
 };
 
-recipeSchema.pre("deleteOne", { document: true, query: false }, async function () {
-  await cleanupRecipeLikesAndSaves(this._id);
-});
+/**
+ * {document: true, query: false } => only for document-level deletion
+ * this._id => refers to the recipe document being deleted
+ * Inside the function, this is the actual recipe document
+ */
 
-recipeSchema.pre("deleteOne", { document: false, query: true }, async function () {
-  const doc = await this.model.findOne(this.getFilter()).select("_id").lean();
-  if (doc) {
-    await cleanupRecipeLikesAndSaves(doc._id);
+recipeSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function () {
+    await cleanupRecipeLikesAndSaves(this._id);
   }
-});
+);
 
-recipeSchema.pre("findOneAndDelete", { document: false, query: true }, async function () {
-  const doc = await this.model.findOne(this.getFilter()).select("_id").lean();
-  if (doc) {
-    await cleanupRecipeLikesAndSaves(doc._id);
+/**
+ * { document: false, query: true } => only for query-level deletion
+ * Can't use (this._id) directly because this is a query object, not a document
+ * Must fetch the document first to get its ID
+ */
+
+recipeSchema.pre(
+  "deleteOne",
+  { document: false, query: true },
+  async function () {
+    const doc = await this.model.findOne(this.getFilter()).select("_id").lean();
+    if (doc) {
+      await cleanupRecipeLikesAndSaves(doc._id);
+    }
   }
-});
+);
 
-recipeSchema.pre("deleteMany", { document: false, query: true }, async function () {
-  const docs = await this.model.find(this.getFilter()).select("_id").lean();
-  if (docs.length > 0) {
-        const recipeIds = docs.map((doc) => doc._id);
-        await Promise.all([
-          RecipeLike.deleteMany({ recipe: { $in: recipeIds } }),
-          RecipeSave.deleteMany({ recipe: { $in: recipeIds } }),
-        ]);
-      }
-});
+recipeSchema.pre(
+  "findOneAndDelete",
+  { document: false, query: true },
+  async function () {
+    const doc = await this.model.findOne(this.getFilter()).select("_id").lean();
+    if (doc) {
+      await cleanupRecipeLikesAndSaves(doc._id);
+    }
+  }
+);
+
+recipeSchema.pre(
+  "deleteMany",
+  { document: false, query: true },
+  async function () {
+    const docs = await this.model.find(this.getFilter()).select("_id").lean();
+    if (docs.length > 0) {
+      const recipeIds = docs.map((doc) => doc._id);
+      await Promise.all([
+        RecipeLike.deleteMany({ recipe: { $in: recipeIds } }),
+        RecipeSave.deleteMany({ recipe: { $in: recipeIds } }),
+      ]);
+    }
+  }
+);
 
 const Recipe = mongoose.model<IRecipe>("Recipe", recipeSchema);
 export default Recipe;
