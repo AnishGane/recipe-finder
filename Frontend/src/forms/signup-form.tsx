@@ -13,7 +13,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 import { useState } from "react"
-import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
+import { ProfileImageSelector } from "@/components/ProfileImageSelector"
+import { useAuth } from "@/context/auth-context"
 
 const formSchema = z.object({
   name: z
@@ -28,7 +30,14 @@ const formSchema = z.object({
   confirmPassword: z
     .string()
     .min(6, "Password must be at least 6 characters long."),
-})
+  avatar: z
+    .instanceof(File)
+    .optional()
+    .nullable(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 export function SignupForm({
   className,
@@ -39,6 +48,8 @@ export function SignupForm({
     confirmPassword: false,
   });
 
+  const { setFormData, register, loading, error } = useAuth();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,13 +57,21 @@ export function SignupForm({
       email: "",
       password: "",
       confirmPassword: "",
+      avatar: null,
     },
-  })
+  });
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    console.log(data)
+    // Update context formData with form values
+    setFormData({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      avatar: data.avatar || null,
+    });
   }
+
   return (
     <form id="form-rhf-demo" className={cn("flex flex-col gap-6", className)} {...props} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
@@ -65,6 +84,26 @@ export function SignupForm({
             Fill in the form below to create your account
           </p>
         </div>
+
+        {/* Profile Image Selector */}
+        <Controller
+          name="avatar"
+          control={form.control}
+          render={({ field }) => (
+            <ProfileImageSelector
+              value={field.value}
+              onChange={field.onChange}
+              className="py-2"
+            />
+          )}
+        />
+
+        {error && (
+          <div className="text-destructive text-sm text-center bg-destructive/10 p-3 rounded-md">
+            {error}
+          </div>
+        )}
+
         <div className="space-y-6">
           <Controller
             name="name"
@@ -132,12 +171,12 @@ export function SignupForm({
                     <EyeIcon onClick={() => setShowPassword({
                       ...showPassword,
                       password: false
-                    })} className="size-3.5 absolute right-3 top-3" />
+                    })} className="size-3.5 absolute right-3 top-3 cursor-pointer" />
                   ) : (
                     <EyeOffIcon onClick={() => setShowPassword({
                       ...showPassword,
                       password: true
-                    })} className="size-3.5 absolute top-3 right-3" />
+                    })} className="size-3.5 absolute top-3 right-3 cursor-pointer" />
                   )}
                   <FieldDescription className="text-[11px] pt-1.5 text-muted">
                     Must be atleast 6 characters.
@@ -169,12 +208,12 @@ export function SignupForm({
                     <EyeIcon onClick={() => setShowPassword({
                       ...showPassword,
                       confirmPassword: false
-                    })} className="size-3.5 absolute right-3 top-3" />
+                    })} className="size-3.5 absolute right-3 top-3 cursor-pointer" />
                   ) : (
                     <EyeOffIcon onClick={() => setShowPassword({
                       ...showPassword,
                       confirmPassword: true
-                    })} className="size-3.5 absolute top-3 right-3" />
+                    })} className="size-3.5 absolute top-3 right-3 cursor-pointer" />
                   )}
                 </div>
                 {fieldState.invalid && (
@@ -185,7 +224,14 @@ export function SignupForm({
           />
         </div>
         <Field>
-          <Button type="submit" variant={"destructive"} className="cursor-pointer">Create Account</Button>
+          <Button type="submit" variant={"destructive"} className="cursor-pointer" disabled={loading}>
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="animate-spin size-4" />
+                Creating account
+              </div>
+            ) : "Create account"}
+          </Button>
         </Field>
         <Field className="-mt-2">
           <FieldDescription className="px-6 text-center text-muted">

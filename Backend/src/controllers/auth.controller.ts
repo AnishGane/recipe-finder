@@ -12,13 +12,18 @@ import { generateSlug } from "../utils/helper";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, username, name } = req.body || {};
+    const { email, password, confirmPassword, name } = req.body || {};
 
     // Validation
     if (!email || !password || !name) {
       res
         .status(400)
         .json({ error: "Please provide email, password, and name" });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      res.status(400).json({ error: "Passwords do not match" });
       return;
     }
 
@@ -29,10 +34,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
     // Check if user already exists
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
-    });
-
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       res
         .status(400)
@@ -68,8 +70,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       email: email.toLowerCase(),
       password: hashedPassword,
       name,
-      username: username || generateSlug(name) + Date.now(),
-      avatar: avatarUrl,
+      username: generateSlug(name) + Date.now(),
+      avatar: avatarUrl || "",
       bio: "",
       isChef: false,
       specialties: [],

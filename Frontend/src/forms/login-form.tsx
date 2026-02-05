@@ -12,8 +12,9 @@ import { Link } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
-import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { useAuth } from "@/context/auth-context"
 
 const formSchema = z.object({
   email: z
@@ -29,6 +30,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"form">) {
   const [showPassword, setShowPassword] = useState(false);
+  const { setFormData, loading, error, login } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,8 +41,10 @@ export function LoginForm({
   })
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    console.log(data)
+    setFormData({
+      email: data.email,
+      password: data.password,
+    });
   }
 
   return (
@@ -50,6 +54,13 @@ export function LoginForm({
           <h1 className="text-2xl font-semibold">Welcome Back!</h1>
           <img src="/Brush.svg" alt="brush" className="absolute -top-11 right-10 size-29" />
         </div>
+
+        {error && (
+          <div className="text-destructive text-sm text-center bg-destructive/10 p-3 rounded-md">
+            {error}
+          </div>
+        )}
+
         <Controller
           name="email"
           control={form.control}
@@ -100,7 +111,14 @@ export function LoginForm({
           )}
         />
         <Field>
-          <Button type="submit" variant={"destructive"} className="cursor-pointer">Login</Button>
+          <Button type="submit" disabled={loading} variant={"destructive"} className="cursor-pointer">
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="animate-spin size-4" />
+                Login
+              </div>
+            ) : "Login"}
+          </Button>
         </Field>
         <Field className="-mt-2">
           <FieldDescription className="text-center text-muted">

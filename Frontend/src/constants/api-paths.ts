@@ -1,0 +1,14 @@
+// Base API URL – defaults to Vite dev server proxy when not set.
+// In dev you can leave this empty and rely on the Vite proxy,
+// in prod set VITE_BASE_URL to your backend URL.
+export const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
+
+export const API_PATHS = {
+  AUTH: {
+    LOGIN: "/api/auth/login",
+    REGISTER: "/api/auth/register",
+    ME: "/api/auth/me",
+    CHANGE_PASSWORD: "/api/auth/change-password",
+    UPDATE_PROFILE: "/api/auth/update-profile",
+  },
+};

@@ -9,11 +9,15 @@ const app = express();
 // global middlewares
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:3000",
-    credentials: true,
+    origin: ["http://localhost:5173", "http://localhost:3000"], // Allow both origins
+    credentials: true, // Allow credentials if needed
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Important for FormData
 
 // auth routes
 app.use("/api/auth", authRouter);

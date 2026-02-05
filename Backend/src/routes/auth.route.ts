@@ -6,7 +6,7 @@ import { upload } from "../middlewares/multer";
 import rateLimit from "express-rate-limit";
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 30 * 1000, // 30 seconds
   max: 5, // 5 attempts per window
   message: "Too many attempts, please try again later",
 });
