@@ -18,15 +18,16 @@ import { EyeIcon, EyeOffIcon } from "lucide-react"
 const formSchema = z.object({
   name: z
     .string()
-    .min(3, "Minimum of 3 character required."),
+    .min(3, "Minimum of 3 characters required."),
   email: z
-    .email(),
+    .string()
+    .email("Please enter a valid email address."),
   password: z
     .string()
-    .min(6, "Password must be more than 6 characters."),
+    .min(6, "Password must be at least 6 characters long."),
   confirmPassword: z
     .string()
-    .min(6, "Password must be more than 6 characters."),
+    .min(6, "Password must be at least 6 characters long."),
 })
 
 export function SignupForm({
@@ -41,8 +42,10 @@ export function SignupForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   })
 

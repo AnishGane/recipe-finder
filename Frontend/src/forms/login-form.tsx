@@ -17,10 +17,11 @@ import { useState } from "react"
 
 const formSchema = z.object({
   email: z
-    .email(),
+    .string()
+    .email("Please enter a valid email address."),
   password: z
     .string()
-    .min(6, "Password must be more than 6 characters."),
+    .min(6, "Password must be at least 6 characters."),
 })
 
 export function LoginForm({
