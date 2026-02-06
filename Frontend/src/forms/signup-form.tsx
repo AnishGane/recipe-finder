@@ -33,7 +33,7 @@ const formSchema = z.object({
   avatar: z
     .instanceof(File)
     .optional()
-    .nullable(),
+    .nullable()
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -48,7 +48,7 @@ export function SignupForm({
     confirmPassword: false,
   });
 
-  const { setFormData, register, loading, error } = useAuth();
+  const { register, setError, loading, error } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,14 +62,8 @@ export function SignupForm({
   });
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    // Update context formData with form values
-    setFormData({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      confirmPassword: data.confirmPassword,
-      avatar: data.avatar || null,
-    });
+    setError(null);
+    register(data.name, data.email, data.password, data.confirmPassword, data.avatar);
   }
 
   return (

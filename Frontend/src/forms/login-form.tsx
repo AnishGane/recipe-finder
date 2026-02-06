@@ -30,7 +30,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"form">) {
   const [showPassword, setShowPassword] = useState(false);
-  const { setFormData, loading, error, login } = useAuth();
+  const { loading, error, login, setError } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,10 +41,9 @@ export function LoginForm({
   })
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    setFormData({
-      email: data.email,
-      password: data.password,
-    });
+    setError(null);
+
+    login(data.email, data.password);
   }
 
   return (

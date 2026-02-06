@@ -1,6 +1,6 @@
 import { API_PATHS } from "@/constants/api-paths";
 import axiosInstance from "@/lib/axios-instance";
-import type { IAuthContext, IUser, TFormData } from "@/types";
+import type { IAuthContext, IUser } from "@/types";
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,19 +9,10 @@ const AuthContext = createContext<IAuthContext | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<IUser | null>(null);
-    const [formData, setFormData] = useState<TFormData>({
-        email: "",
-        password: "",
-        confirmPassword: "",
-        name: "",
-        avatar: null,
-
-    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
     const [authLoading, setAuthLoading] = useState(true);
-
 
     useEffect(() => {
         const initAuth = async () => {
@@ -62,28 +53,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem('token');
     }
 
-    const register = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const register = async (name: string, email: string, password: string, confirmPassword: string, avatar?: File | null) => {
         setLoading(true);
         try {
             const fd = new FormData();
-
-            Object.entries(formData).forEach(([key, value]) => {
-                if (value !== undefined && value !== null && value !== "") {
-                    // Handle avatar file separately
-                    if (key === "avatar" && value instanceof File) {
-                        fd.append(key, value);
-                    }
-                    // Handle arrays (specialties, followingIds, etc.)
-                    else if (Array.isArray(value)) {
-                        fd.append(key, JSON.stringify(value));
-                    }
-                    // Handle other values
-                    else {
-                        fd.append(key, String(value));
-                    }
-                }
-            });
+            fd.append('name', name);
+            fd.append('email', email);
+            fd.append('password', password);
+            fd.append('confirmPassword', confirmPassword);
+            // Only append avatar if it exists and is a File
+            if (avatar && avatar instanceof File) {
+                fd.append('avatar', avatar);
+            }
 
             const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, fd,
                 {
@@ -93,11 +74,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 }
             );
 
-            // console.log("Registration successful:", response.data);
             if (response.data.success) {
                 localStorage.setItem("token", response.data.token);
                 setUser(response.data.user);
-                setFormData({});
+                localStorage.setItem('user', JSON.stringify(response.data.user));
                 navigate("/");
             }
         } catch (error) {
@@ -115,22 +95,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const login = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const login = async (email: string, password: string) => {
         setLoading(true);
+        setError(null);
+
         try {
-            // Send JSON for login – backend expects a JSON body
             const payload = {
-                email: formData.email,
-                password: formData.password,
+                email,
+                password,
             };
 
             const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, payload);
-            // console.log("Login successful:", response.data);
+
             if (response.data.success) {
                 localStorage.setItem("token", response.data.token);
                 setUser(response.data.user);
-                setFormData({});
+                localStorage.setItem('user', JSON.stringify(response.data.user));
                 navigate("/");
             }
         } catch (error) {
@@ -150,7 +130,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, setUser, formData, setFormData, loading, setLoading, navigate, authLoading, updateUser, clearUser, register, login, error, setError }}>
+        <AuthContext.Provider value={{ user, setUser, loading, setLoading, navigate, authLoading, updateUser, clearUser, register, login, error, setError }}>
             {children}
         </AuthContext.Provider>
     )

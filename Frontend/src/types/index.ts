@@ -21,13 +21,9 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export type TFormData = Partial<Omit<IUser, "_id" | "createdAt" | "updatedAt">>;
-
 export interface IAuthContext {
   user: IUser | null;
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
-  formData: TFormData;
-  setFormData: React.Dispatch<React.SetStateAction<TFormData>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   error: string | null;
@@ -36,6 +32,12 @@ export interface IAuthContext {
   authLoading: boolean;
   updateUser: (updatedUser: IUser) => void;
   clearUser: () => void;
-  register: (e: React.FormEvent) => Promise<void>;
-  login: (e: React.FormEvent) => Promise<void>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    avatar?: File | null
+  ) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
 }
