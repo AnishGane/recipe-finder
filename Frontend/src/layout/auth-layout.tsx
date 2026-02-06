@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                         <div className="bg-destructive flex size-6 items-center justify-center rounded-sm">
                             <CookingPot className="size-4" />
                         </div>
-                        Recipe Finder
+                        Flavourly
                     </div>
                     <div className="flex flex-1 text-primary-foreground items-center justify-center">
                         <div className="w-full max-w-xs">

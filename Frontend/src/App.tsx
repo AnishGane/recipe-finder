@@ -5,10 +5,18 @@ import Login from "./pages/login"
 import Signup from "./pages/signup"
 import { PublicRoute } from "./components/public-route"
 import ProtectedRoute from "./components/protected-route"
+import Collections from "./pages/collections"
+import Navbar from "./components/Navbar"
+import MyCookbook from "./pages/my-cookbook"
+import SavedRecipes from "./pages/saved-recipes"
+import Communities from "./pages/communities"
+import MobileBottomNav from "./components/mobile-bottom-nav"
 
 const App = () => {
   return (
-    <>
+    <main className="container min-w-full min-h-screen bg-background mx-auto">
+      <Navbar />
+      <MobileBottomNav />
       <Routes>
         {/* Protected Routes - Only accessible when logged in */}
         <Route
@@ -19,6 +27,26 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/collections" element={
+          <ProtectedRoute>
+            <Collections />
+          </ProtectedRoute>
+        } />
+        <Route path="/my-cookbook" element={
+          <ProtectedRoute>
+            <MyCookbook />
+          </ProtectedRoute>
+        } />
+        <Route path="/saved-recipes" element={
+          <ProtectedRoute>
+            <SavedRecipes />
+          </ProtectedRoute>
+        } />
+        <Route path="/communities" element={
+          <ProtectedRoute>
+            <Communities />
+          </ProtectedRoute>
+        } />
         {/* Public Routes - Only accessible when NOT logged in */}
         <Route
           path="/login"
@@ -39,7 +67,7 @@ const App = () => {
         {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </main>
   )
 }
 

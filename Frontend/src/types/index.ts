@@ -8,7 +8,7 @@ export interface IUser {
   confirmPassword: string;
   name: string;
   username: string;
-  avatar?: string | File | null;
+  avatar?: string | null;
   bio?: string;
   isChef: boolean;
   specialties: string[];

@@ -18,20 +18,31 @@ export function ProfileImageSelector({
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
-    
+
     // Sync preview with external value changes
     useEffect(() => {
+        let isCancelled = false;
         if (value) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setPreview(reader.result as string);
+                if (!isCancelled) {
+                    setPreview(reader.result as string);
+                }
+            };
+            reader.onerror = () => {
+                if (!isCancelled) {
+                    setError("Failed to read the image file");
+                }
             };
             reader.readAsDataURL(value);
+            return () => {
+                isCancelled = true;
+                reader.abort();
+            };
         } else {
             setPreview(null);
         }
     }, [value]);
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         setError(null);
@@ -85,6 +96,15 @@ export function ProfileImageSelector({
                 {/* Avatar Preview */}
                 <div
                     onClick={handleClick}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleClick();
+                        }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={preview ? "Change profile picture" : "Upload profile picture"}
                     className={cn(
                         "size-24 rounded-full border-2 border-dashed border-border bg-muted flex items-center justify-center cursor-pointer overflow-hidden transition-all hover:border-primary",
                         preview && "border-solid border-destructive"
@@ -99,9 +119,7 @@ export function ProfileImageSelector({
                     ) : (
                         <Camera className="size-8 text-muted-foreground" />
                     )}
-                </div>
-
-                {/* Remove Button */}
+                </div>                {/* Remove Button */}
                 {preview && (
                     <button
                         type="button"
@@ -109,11 +127,11 @@ export function ProfileImageSelector({
                             e.stopPropagation();
                             handleRemove();
                         }}
+                        aria-label="Remove profile picture"
                         className="absolute cursor-pointer top-0 right-0 size-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-colors"
                     >
                         <X className="size-3.5" />
-                    </button>
-                )}
+                    </button>)}
 
                 {/* Hidden File Input */}
                 <input

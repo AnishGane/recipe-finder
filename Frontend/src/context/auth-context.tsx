@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const register = async (name: string, email: string, password: string, confirmPassword: string, avatar?: File | null) => {
         setLoading(true);
+        setError(null);
         try {
             const fd = new FormData();
             fd.append('name', name);

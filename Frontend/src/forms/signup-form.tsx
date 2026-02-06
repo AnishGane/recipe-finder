@@ -14,7 +14,7 @@ import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 import { useState } from "react"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
-import { ProfileImageSelector } from "@/components/ProfileImageSelector"
+import { ProfileImageSelector } from "@/components/profile-image-selector"
 import { useAuth } from "@/context/auth-context"
 
 const formSchema = z.object({
