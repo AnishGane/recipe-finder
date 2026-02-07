@@ -1,8 +1,10 @@
+import HeroBanner from "@/components/hero-banner"
 
 const Home = () => {
     return (
-        
-            <h1>hello</h1>
+        <>
+            <HeroBanner />
+        </>
     )
 }
 
