@@ -9,6 +9,7 @@ import {
 import jwt from "jsonwebtoken";
 import { AuthRequest } from "../types";
 import { generateSlug } from "../utils/helper";
+import { randomUUID } from "crypto";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -70,7 +71,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       email: email.toLowerCase(),
       password: hashedPassword,
       name,
-      username: generateSlug(name) + Date.now(),
+      username: generateSlug(name) + "-" + randomUUID().slice(0, 8),
       avatar: avatarUrl || "",
       bio: "",
       isChef: false,
@@ -210,7 +211,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
 // Update user Profile
 export const updateProfile = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { name, bio, specialties, isChef } = req.body;
@@ -243,7 +244,7 @@ export const updateProfile = async (
         if (oldAvatar) {
           const publicId = extractPublicId(oldAvatar);
           deleteImageFromCloudinary(publicId).catch((err) =>
-            console.error("Failed to delete old avatar:", err)
+            console.error("Failed to delete old avatar:", err),
           );
         }
       } catch (uploadError) {
@@ -285,7 +286,7 @@ export const updateProfile = async (
 
 export const changePassword = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { currentPassword, newPassword } = req.body;

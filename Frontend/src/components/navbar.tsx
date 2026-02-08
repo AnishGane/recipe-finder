@@ -13,7 +13,7 @@ const Navbar = () => {
     const avatarUrl = user?.avatar || undefined;
 
     return (
-        <div className='bg-transparent sticky top-0 px-6 sm:px-8 md:px-10 backdrop-blur-2xl support-backdrop-blur:bg-white/60 lg:px-12 py-3 border-b border-border/20'>
+        <div className='bg-transparent sticky top-0 px-6 z-30 sm:px-8 md:px-10 backdrop-blur-2xl support-backdrop-blur:bg-white/60 lg:px-12 py-3 border-b border-border/20'>
             <div className="flex items-center justify-between">
                 {/* Logo */}
                 <Link to={"/"}>

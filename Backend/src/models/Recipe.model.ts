@@ -65,7 +65,7 @@ const recipeSchema = new mongoose.Schema(
     },
     servings: {
       type: Number,
-      default: 4,
+      default: 2,
     },
     difficulty: {
       type: String,

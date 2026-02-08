@@ -37,7 +37,40 @@ export interface IAuthContext {
     email: string,
     password: string,
     confirmPassword: string,
-    avatar?: File | null
+    avatar?: File | null,
   ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+}
+
+export interface Recipe {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  heroImage?: string;
+  prepTime: number;
+  cookTime: number;
+  servings: number;
+  difficulty: string;
+  cuisine: string;
+  tags: string[];
+  averageRating: number;
+  ratingCount: number;
+  userId: {
+    _id: string;
+    name: string;
+    username: string;
+    avatar?: string;
+  };
+}
+
+export interface RecipesResponse {
+  success: boolean;
+  recipes: Recipe[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }

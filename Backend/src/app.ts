@@ -3,6 +3,7 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import authRouter from "./routes/auth.route";
+import recipeRouter from "./routes/recipe.route";
 
 const app = express();
 
@@ -13,7 +14,7 @@ app.use(
     credentials: true, // Allow credentials if needed
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true })); // Important for FormData
 
 // auth routes
 app.use("/api/auth", authRouter);
+app.use("/api/recipes", recipeRouter);
 
 app.get("/api/health", (_, res) => {
   res.send("OK");
