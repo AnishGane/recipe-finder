@@ -6,11 +6,11 @@ import Signup from "./pages/signup"
 import { PublicRoute } from "./components/public-route"
 import ProtectedRoute from "./components/protected-route"
 import Collections from "./pages/collections"
-import Navbar from "./components/Navbar"
 import MyCookbook from "./pages/my-cookbook"
 import SavedRecipes from "./pages/saved-recipes"
 import Communities from "./pages/communities"
 import MobileBottomNav from "./components/mobile-bottom-nav"
+import Navbar from "./components/navbar"
 
 const App = () => {
   return (
