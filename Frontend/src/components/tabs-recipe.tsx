@@ -52,7 +52,7 @@ const Tabsrecipe = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-5 gap-12 ">
                 <div className="col-span-4">
-                    <h1 className="mt-8 mb-4 text-3xl text-foreground font-semibold font-banner-h1 tracking-tight">Trending Recipes🔥</h1>
+                    <h1 className="mt-8 mb-4 text-3xl text-foreground font-semibold font-sn-pro tracking-tight">Trending Recipes🔥</h1>
                     {/* Recipe Grid */}
                     <div className="">
                         {isLoading ? (

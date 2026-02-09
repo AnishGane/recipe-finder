@@ -22,6 +22,7 @@ export const createRecipe = async (
       instructions,
       tags,
       isPublished,
+      mealType,
     } = req.body;
 
     const userId = req.userId;
@@ -62,14 +63,23 @@ export const createRecipe = async (
     }
 
     // Parse ingredients and instructions if they're strings
-    const parsedIngredients =
-      typeof ingredients === "string" ? JSON.parse(ingredients) : ingredients;
-    const parsedInstructions =
-      typeof instructions === "string"
-        ? JSON.parse(instructions)
-        : instructions;
-    const parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
-
+    let parsedIngredients, parsedInstructions, parsedTags;
+    try {
+      parsedIngredients =
+        typeof ingredients === "string" ? JSON.parse(ingredients) : ingredients;
+      parsedInstructions =
+        typeof instructions === "string"
+          ? JSON.parse(instructions)
+          : instructions;
+      parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
+    } catch (parseError) {
+      res
+        .status(400)
+        .json({
+          error: "Invalid JSON format in ingredients, instructions, or tags",
+        });
+      return;
+    }
     // Create recipe
     const recipe = new Recipe({
       userId,
@@ -82,6 +92,7 @@ export const createRecipe = async (
       servings: servings ? Number(servings) : 4,
       difficulty: difficulty || "medium",
       cuisine,
+      mealType,
       ingredients: parsedIngredients || [],
       instructions: parsedInstructions || [],
       tags: parsedTags || [],

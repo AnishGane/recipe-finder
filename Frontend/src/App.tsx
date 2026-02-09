@@ -9,14 +9,12 @@ import Collections from "./pages/collections"
 import MyCookbook from "./pages/my-cookbook"
 import SavedRecipes from "./pages/saved-recipes"
 import Communities from "./pages/communities"
-import MobileBottomNav from "./components/mobile-bottom-nav"
-import Navbar from "./components/navbar"
+import CreateRecipePage from "./components/create-recipe"
 
 const App = () => {
   return (
     <main className="container min-w-full min-h-screen bg-background mx-auto">
-      <Navbar />
-      <MobileBottomNav />
+
       <Routes>
         {/* Protected Routes - Only accessible when logged in */}
         <Route
@@ -45,6 +43,11 @@ const App = () => {
         <Route path="/communities" element={
           <ProtectedRoute>
             <Communities />
+          </ProtectedRoute>
+        } />
+        <Route path="/create-recipe" element={
+          <ProtectedRoute>
+            <CreateRecipePage />
           </ProtectedRoute>
         } />
         {/* Public Routes - Only accessible when NOT logged in */}

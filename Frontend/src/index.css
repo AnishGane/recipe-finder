@@ -40,7 +40,12 @@
   --font-sans: Poppins, sans-serif;
   --font-serif: Poppins, sans-serif;
   --font-mono: "Space Mono", monospace;
-  --font-banner-h1: "SN Pro", sans-serif;
+  --font-sn-pro: "SN Pro", sans-serif;
+
+  --heading: 2.25rem;
+  --subheading: 1.39rem;
+  --para: 0.859rem;
+
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 0px;
@@ -106,7 +111,11 @@
   --font-sans: Poppins, sans-serif;
   --font-serif: Poppins, sans-serif;
   --font-mono: Space Mono, monospace;
-  --font-banner-h1: "SN Pro", sans-serif;
+  --font-sn-pro: "SN Pro", sans-serif;
+
+  --heading: 2.25rem;
+  --subheading: 1.39rem;
+  --para: 0.859rem;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 0px;
@@ -171,7 +180,11 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
-  --font-banner-h1: var(--font-banner-h1);
+  --font-sn-pro: var(--font-sn-pro);
+
+  --text-heading: var(--heading);
+  --text-subheading: var(--subheading);
+  --text-para: var(--para);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -208,3 +221,14 @@
 body {
   letter-spacing: var(--tracking-normal);
 }
+
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield;
+}
+

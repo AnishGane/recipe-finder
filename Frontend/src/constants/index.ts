@@ -4,6 +4,9 @@ import {
   FolderKanban,
   Bookmark,
   Users2,
+  Youtube,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 
 export const NAV_ITEM = [
@@ -38,3 +41,21 @@ export const NAV_ITEM = [
     icon: Users2,
   },
 ];
+
+export const FOOTER_LINKS = {
+  platform: [
+    { label: "Browse Recipes", href: "/recipes" },
+    { label: "Top Chefs", href: "/chefs" },
+    { label: "Collections", href: "/collections" },
+  ],
+  support: [
+    { label: "Help Center", href: "/help" },
+    { label: "Community Guidelines", href: "/guidelines" },
+    { label: "Safety", href: "/safety" },
+  ],
+  social: [
+    { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
+    { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
+    { icon: Youtube, label: "YouTube", href: "https://youtube.com" },
+  ],
+};

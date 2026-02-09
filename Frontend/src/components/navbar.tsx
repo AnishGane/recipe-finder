@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
-import { CookingPot, Plus } from 'lucide-react'
+import { CookingPot, LogOutIcon, Plus } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from '@/context/auth-context'
 import { ModeToggle } from './mode-switcher'
@@ -9,8 +9,15 @@ import { NavLink } from "react-router-dom";
 import { NAV_ITEM } from '@/constants'
 
 const Navbar = () => {
-    const { user } = useAuth();
+    const { user, setUser, navigate } = useAuth();
     const avatarUrl = user?.avatar || undefined;
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+        navigate('/login');
+    }
 
     return (
         <div className='bg-transparent sticky top-0 px-6 z-30 sm:px-8 md:px-10 backdrop-blur-2xl support-backdrop-blur:bg-white/60 lg:px-12 py-3 border-b border-border/20'>
@@ -48,9 +55,15 @@ const Navbar = () => {
                 </ul>
 
                 <div className="flex items-center justify-center gap-5">
+                    {user && (
+                        <Button variant={"ghost"} onClick={logout} aria-label="Log out">
+                            <LogOutIcon />
+                            <span className="sr-only">Log out</span>
+                        </Button>
+                    )}                    
                     <ModeToggle />
                     {/* Create Recipe CTA */}
-                    <Button className='bg-secondary  hover:bg-secondary/90 cursor-pointer rounded-full font-normal p-4'>
+                    <Button onClick={() => navigate('/create-recipe')} className='bg-secondary  hover:bg-secondary/90 cursor-pointer rounded-full font-normal p-4'>
                         <Plus className='size-4 -mr-1 text-secondary-foreground' />
                         <span className='hidden md:block'>Create Recipe</span>
                         <span className='sr-only'>create recipe</span>

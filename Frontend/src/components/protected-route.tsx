@@ -2,6 +2,9 @@ import { useAuth } from '@/context/auth-context'
 import { Loader2 } from 'lucide-react';
 import { type ReactNode } from 'react'
 import { Navigate } from 'react-router-dom';
+import Navbar from './navbar';
+import MobileBottomNav from './mobile-bottom-nav';
+import Footer from './footer';
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     const { user, authLoading } = useAuth();
@@ -19,7 +22,12 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
         return <Navigate to="/login" replace />;
     }
     return (
-        <div className='px-4 sm:px-8 md:px-10 lg:px-12 py-6'>{children}</div>
+        <>
+            <Navbar />
+            <MobileBottomNav />
+            <div className='px-4 sm:px-8 md:px-10 lg:px-12 py-6'>{children}</div>
+            <Footer />
+        </>
     )
 }
 
