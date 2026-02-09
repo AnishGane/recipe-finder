@@ -16,28 +16,7 @@ import { useState } from "react"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { ProfileImageSelector } from "@/components/profile-image-selector"
 import { useAuth } from "@/context/auth-context"
-
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(3, "Minimum of 3 characters required."),
-  email: z
-    .string()
-    .email("Please enter a valid email address."),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters long."),
-  confirmPassword: z
-    .string()
-    .min(6, "Password must be at least 6 characters long."),
-  avatar: z
-    .instanceof(File)
-    .optional()
-    .nullable()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+import { signupFormSchema } from "@/validations/auth-schema"
 
 export function SignupForm({
   className,
@@ -50,8 +29,8 @@ export function SignupForm({
 
   const { register, setError, loading, error } = useAuth();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signupFormSchema>>({
+    resolver: zodResolver(signupFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -61,7 +40,7 @@ export function SignupForm({
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  function onSubmit(data: z.infer<typeof signupFormSchema>) {
     setError(null);
     register(data.name, data.email, data.password, data.confirmPassword, data.avatar);
   }

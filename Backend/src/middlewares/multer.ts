@@ -1,4 +1,5 @@
 // backend/src/middleware/multer.ts
+import type { Express } from "express";
 import multer from "multer";
 import path from "path";
 
@@ -36,3 +37,42 @@ export const upload = multer({
   },
   fileFilter: fileFilter,
 });
+// utils/multer-helpers.ts
+
+/**
+ * Type-safe helper to extract files from req.files when using upload.fields()
+ */
+export interface RecipeUploadFiles {
+  heroImage?: Express.Multer.File[];
+  instructionImages?: Express.Multer.File[];
+}
+
+/**
+ * Safely extract and type files from multer upload.fields()
+ */
+export function getUploadedFiles(
+  files: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] } | undefined
+): RecipeUploadFiles {
+  if (!files || Array.isArray(files)) {
+    return {};
+  }
+
+  return {
+    heroImage: files['heroImage'] as Express.Multer.File[] | undefined,
+    instructionImages: files['instructionImages'] as Express.Multer.File[] | undefined,
+  };
+}
+
+/**
+ * Get hero image from uploaded files
+ */
+export function getHeroImage(files: RecipeUploadFiles): Express.Multer.File | undefined {
+  return files.heroImage?.[0];
+}
+
+/**
+ * Get instruction images from uploaded files
+ */
+export function getInstructionImages(files: RecipeUploadFiles): Express.Multer.File[] {
+  return files.instructionImages || [];
+}

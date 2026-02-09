@@ -59,3 +59,31 @@ export const FOOTER_LINKS = {
     { icon: Youtube, label: "YouTube", href: "https://youtube.com" },
   ],
 };
+
+export const CUISINES = [
+  "Italian",
+  "Chinese",
+  "Indian",
+  "Mexican",
+  "Japanese",
+  "French",
+  "Thai",
+  "Greek",
+  "American",
+  "Mediterranean",
+  "Other",
+] as const;
+
+export const MEAL_TYPES = [
+  'Breakfast',
+  'Lunch',
+  'Dinner',
+  'Snack',
+  'Dessert'
+] as const;
+
+export const DIFFICULTY_LEVELS = [
+  'Easy',
+  'Medium',
+  'Hard'
+] as const;

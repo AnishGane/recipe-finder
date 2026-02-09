@@ -1,15 +1,16 @@
-import type { Response } from "express";
+import type { RequestHandler } from "express";
 import Recipe from "../models/Recipe.model";
 import { uploadImageToCloudinary } from "../utils/uploadImage";
 import { generateSlug } from "../utils/helper";
-import { AuthRequest } from "../types";
+import { AuthRequest, CloudinaryUploadResult } from "../types";
 
 // Create a new recipe
-export const createRecipe = async (
-  req: AuthRequest,
-  res: Response,
-): Promise<void> => {
+import { IngredientInput, InstructionInput } from "../types/recipe.type";
+import { getHeroImage, getInstructionImages, getUploadedFiles } from "../middlewares/multer";
+
+export const createRecipe: RequestHandler = async (req, res) => {
   try {
+    const authReq = req as AuthRequest;
     const {
       title,
       description,
@@ -25,8 +26,9 @@ export const createRecipe = async (
       mealType,
     } = req.body;
 
-    const userId = req.userId;
+    const userId = authReq.userId;
 
+    // Validation
     if (!userId) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -44,43 +46,123 @@ export const createRecipe = async (
       slug = `${slug}-${Date.now()}`;
     }
 
-    // Handle hero image upload if provided
+    // Extract uploaded files using helper
+    const uploadedFiles = getUploadedFiles(req.files);
+    const heroImageFile = getHeroImage(uploadedFiles);
+    const instructionImageFiles = getInstructionImages(uploadedFiles);
+
+    // Handle hero image upload
     let heroImageUrl = "";
-    if (req.file) {
+    if (heroImageFile) {
       try {
-        const result = await uploadImageToCloudinary(req.file.buffer, {
-          folder: "recipe-platform/recipes",
-          transformation: [
-            { width: 1200, height: 800, crop: "fill" },
-            { quality: "auto" },
-            { fetch_format: "auto" },
-          ],
-        });
+        const result: CloudinaryUploadResult = await uploadImageToCloudinary(
+          heroImageFile.buffer,
+          {
+            folder: "recipe-platform/recipes",
+            transformation: [
+              { width: 1200, height: 800, crop: "fill" },
+              { quality: "auto" },
+              { fetch_format: "auto" },
+            ],
+          }
+        );
         heroImageUrl = result.secure_url;
+        console.log('Hero image uploaded:', heroImageUrl);
       } catch (uploadError) {
         console.error("Hero image upload error:", uploadError);
+        res.status(500).json({ error: "Failed to upload hero image" });
+        return;
       }
     }
 
-    // Parse ingredients and instructions if they're strings
-    let parsedIngredients, parsedInstructions, parsedTags;
+    // Parse ingredients, instructions, and tags
+    let parsedIngredients: IngredientInput[];
+    let parsedInstructions: InstructionInput[];
+    let parsedTags: string[];
+
     try {
       parsedIngredients =
-        typeof ingredients === "string" ? JSON.parse(ingredients) : ingredients;
+        typeof ingredients === "string" 
+          ? JSON.parse(ingredients) 
+          : ingredients;
+      
       parsedInstructions =
         typeof instructions === "string"
           ? JSON.parse(instructions)
           : instructions;
-      parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
+      
+      parsedTags = 
+        typeof tags === "string" 
+          ? JSON.parse(tags) 
+          : tags;
     } catch (parseError) {
-      res
-        .status(400)
-        .json({
-          error: "Invalid JSON format in ingredients, instructions, or tags",
-        });
+      console.error("JSON parse error:", parseError);
+      res.status(400).json({
+        error: "Invalid JSON format in ingredients, instructions, or tags",
+      });
       return;
     }
-    // Create recipe
+
+    // Handle instruction images upload
+    if (instructionImageFiles.length > 0 && parsedInstructions) {
+      try {
+        console.log(`Uploading ${instructionImageFiles.length} instruction images...`);
+        
+        // Create upload promises for each image
+        const imageUploadPromises = instructionImageFiles.map(async (file) => {
+          // Extract the index from fieldname like "instructionImages[2]"
+          const indexMatch = file.fieldname.match(/\[(\d+)\]/);
+          const stepIndex = indexMatch ? parseInt(indexMatch[1]) : -1;
+
+          if (stepIndex === -1) {
+            console.warn(`Could not parse index from fieldname: ${file.fieldname}`);
+            return null;
+          }
+
+          try {
+            const result: CloudinaryUploadResult = await uploadImageToCloudinary(
+              file.buffer,
+              {
+                folder: "recipe-platform/instructions",
+                transformation: [
+                  { width: 800, height: 600, crop: "fill" },
+                  { quality: "auto" },
+                  { fetch_format: "auto" },
+                ],
+                public_id: `instruction-${slug}-step-${stepIndex}-${Date.now()}`,
+              }
+            );
+
+            console.log(`Uploaded instruction image for step ${stepIndex}:`, result.secure_url);
+
+            return {
+              stepIndex,
+              url: result.secure_url,
+            };
+          } catch (uploadError) {
+            console.error(`Failed to upload instruction image for step ${stepIndex}:`, uploadError);
+            return null;
+          }
+        });
+
+        // Wait for all uploads to complete
+        const uploadResults = await Promise.all(imageUploadPromises);
+
+        // Map uploaded images to their corresponding instructions
+        uploadResults.forEach((result) => {
+          if (result && parsedInstructions[result.stepIndex]) {
+            parsedInstructions[result.stepIndex].image = result.url;
+          }
+        });
+
+        console.log('All instruction images uploaded successfully');
+      } catch (uploadError) {
+        console.error("Instruction images upload error:", uploadError);
+        // Continue with recipe creation even if some images fail
+      }
+    }
+
+    // Create recipe document
     const recipe = new Recipe({
       userId,
       title,
@@ -98,10 +180,14 @@ export const createRecipe = async (
       tags: parsedTags || [],
       isPublished: isPublished === "true" || isPublished === true,
       publishedAt:
-        isPublished === "true" || isPublished === true ? new Date() : undefined,
+        isPublished === "true" || isPublished === true 
+          ? new Date() 
+          : undefined,
     });
 
     await recipe.save();
+
+    console.log('Recipe created successfully:', recipe._id);
 
     res.status(201).json({
       success: true,
@@ -110,15 +196,15 @@ export const createRecipe = async (
     });
   } catch (error) {
     console.error("Create recipe error:", error);
-    res.status(500).json({ error: "Failed to create recipe" });
+    res.status(500).json({ 
+      error: "Failed to create recipe",
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
 // Get all recipes with filtering
-export const getRecipes = async (
-  req: AuthRequest,
-  res: Response,
-): Promise<void> => {
+export const getRecipes: RequestHandler = async (req, res) => {
   try {
     const {
       page = 1,
@@ -188,34 +274,34 @@ export const getRecipes = async (
 };
 
 // Get single recipe by slug
-export const getRecipeBySlug = async (
-  req: AuthRequest,
-  res: Response,
-): Promise<void> => {
-  try {
-    const { slug } = req.params;
+// export const getRecipeBySlug = async (
+//   req: AuthRequest,
+//   res: Response,
+// ): Promise<void> => {
+//   try {
+//     const { slug } = req.params;
 
-    const recipe = await Recipe.findOne({ slug, isPublished: true })
-      .populate("userId", "name username avatar bio isChef")
-      .lean();
+//     const recipe = await Recipe.findOne({ slug, isPublished: true })
+//       .populate("userId", "name username avatar bio isChef")
+//       .lean();
 
-    if (!recipe) {
-      res.status(404).json({ error: "Recipe not found" });
-      return;
-    }
+//     if (!recipe) {
+//       res.status(404).json({ error: "Recipe not found" });
+//       return;
+//     }
 
-    // Increment view count
-    await Recipe.updateOne({ _id: recipe._id }, { $inc: { viewCount: 1 } });
+//     // Increment view count
+//     await Recipe.updateOne({ _id: recipe._id }, { $inc: { viewCount: 1 } });
 
-    res.status(200).json({
-      success: true,
-      recipe,
-    });
-  } catch (error) {
-    console.error("Get recipe error:", error);
-    res.status(500).json({ error: "Failed to fetch recipe" });
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       recipe,
+//     });
+//   } catch (error) {
+//     console.error("Get recipe error:", error);
+//     res.status(500).json({ error: "Failed to fetch recipe" });
+//   }
+// };
 
 // // Update recipe
 // export const updateRecipe = async (
@@ -323,12 +409,10 @@ export const getRecipeBySlug = async (
 // };
 
 // Get user's own recipes (drafts and published)
-export const getMyRecipes = async (
-  req: AuthRequest,
-  res: Response,
-): Promise<void> => {
+export const getMyRecipes: RequestHandler = async (req, res) => {
   try {
-    const userId = req.userId;
+    const authReq = req as AuthRequest;
+    const userId = authReq.userId;
     const { page = 1, limit = 12, status } = req.query;
 
     const filter: any = { userId };

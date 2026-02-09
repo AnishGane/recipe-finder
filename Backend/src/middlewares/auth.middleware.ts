@@ -1,5 +1,5 @@
-import { AuthRequest } from "../types";
-import { NextFunction, Response } from "express";
+import type { RequestHandler } from "express";
+import type { AuthRequest } from "../types";
 import jwt from "jsonwebtoken";
 import User from "../models/User.model";
 
@@ -9,11 +9,7 @@ interface JWTPayload {
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-export const auth = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const auth: RequestHandler = async (req, res, next) => {
   try {
     if (!JWT_SECRET) {
       console.error("JWT_SECRET is not configured");
@@ -32,8 +28,9 @@ export const auth = async (
       return res.status(401).send({ error: "No User found." });
     }
 
-    req.user = user;
-    req.userId = user._id;
+    const authReq = req as AuthRequest;
+    authReq.user = user;
+    authReq.userId = user._id;
     next();
   } catch (error) {
     return res.status(401).json({ error: "Invalid token" });

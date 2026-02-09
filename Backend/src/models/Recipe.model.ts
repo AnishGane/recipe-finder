@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
-import { IIngredient, IRecipe } from "../types";
+
 import RecipeLike from "./RecipeLike.model";
 import RecipeSave from "./RecipeSave.model";
+import { IIngredient, IRecipe } from "../types/recipe.type";
 
 const ingredientSchema = new mongoose.Schema<IIngredient>(
   {

@@ -15,15 +15,7 @@ import * as z from "zod"
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useAuth } from "@/context/auth-context"
-
-const formSchema = z.object({
-  email: z
-    .string()
-    .email("Please enter a valid email address."),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters."),
-})
+import { loginFormSchema } from "@/validations/auth-schema"
 
 export function LoginForm({
   className,
@@ -32,15 +24,15 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const { loading, error, login, setError } = useAuth();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  function onSubmit(data: z.infer<typeof loginFormSchema>) {
     setError(null);
 
     login(data.email, data.password);

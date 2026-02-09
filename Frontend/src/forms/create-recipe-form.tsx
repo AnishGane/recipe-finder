@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
     Form,
     FormControl,
@@ -26,68 +25,16 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useFieldArray } from "react-hook-form";
-
-
-// Constants
-const CUISINES = [
-    "Italian",
-    "Chinese",
-    "Indian",
-    "Mexican",
-    "Japanese",
-    "French",
-    "Thai",
-    "Greek",
-    "American",
-    "Mediterranean",
-    "Other",
-] as const;
-
-const MEAL_TYPES = [
-    'Breakfast',
-    'Lunch',
-    'Dinner',
-    'Snack',
-    'Dessert'
-] as const;
-
-const DIFFICULTY_LEVELS = [
-    'Easy',
-    'Medium',
-    'Hard'
-] as const;
-
-// Zod Schema
-const ingredientSchema = z.object({
-    qty: z.string().min(1, "Quantity is required"),
-    unit: z.string().min(1, "Unit is required"),
-    name: z.string().min(1, "Ingredient name is required"),
-});
-
-const instructionSchema = z.object({
-    step: z.number(),
-    description: z.string().min(10, "Instruction must be at least 10 characters"),
-    image: z.string().nullable(),
-    duration: z.number(),
-});
-
-const recipeFormSchema = z.object({
-    title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title is too long"),
-    description: z.string().min(20, "Description must be at least 20 characters").max(500, "Description is too long"),
-    prepTime: z.string().min(1, "Prep time is required"),
-    cookTime: z.string().min(1, "Cook time is required"),
-    difficulty: z.enum(DIFFICULTY_LEVELS),
-    servings: z.string().min(1, "Servings is required"),
-    ingredients: z.array(ingredientSchema).min(1, "At least one ingredient is required"),
-    instructions: z.array(instructionSchema).min(1, "At least one instruction is required"),
-    cuisines: z.array(z.string()),
-    mealTypes: z.array(z.string()),
-});
-
-type RecipeFormValues = z.infer<typeof recipeFormSchema>;
+import { CUISINES, DIFFICULTY_LEVELS, MEAL_TYPES } from "@/constants";
+import { recipeFormSchema, type RecipeFormValues } from "@/validations/create-recipe-schema";
+import { useMutation } from "@tanstack/react-query";
+import { createRecipe } from "@/api/api";
+import type { InstructionImageFile } from "@/types";
 
 const CreateRecipeForm = () => {
     const [heroImage, setHeroImage] = useState<string | null>(null);
+    const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+    const [instructionImageFiles, setInstructionImageFiles] = useState<InstructionImageFile[]>([]);
 
     const form = useForm<RecipeFormValues>({
         resolver: zodResolver(recipeFormSchema),
@@ -123,6 +70,11 @@ const CreateRecipeForm = () => {
 
     const instructions = form.watch('instructions');
 
+    const { mutateAsync: createRecipeMutate, isPending: isCreatingRecipe } = useMutation({
+        mutationKey: ['createRecipe'],
+        mutationFn: (formData: FormData) => createRecipe(formData),
+    });
+
     const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -131,7 +83,40 @@ const CreateRecipeForm = () => {
             }
             const objectUrl = URL.createObjectURL(file);
             setHeroImage(objectUrl);
+            setHeroImageFile(file);
         }
+    };
+
+    const handleInstructionImageUpload = (index: number, file: File) => {
+        const objectUrl = URL.createObjectURL(file);
+
+        // Update form state with preview URL
+        const updatedInstructions = [...form.getValues('instructions')];
+        updatedInstructions[index].image = objectUrl;
+        form.setValue('instructions', updatedInstructions);
+
+        // Store the actual file for upload
+        setInstructionImageFiles(prev => {
+            const filtered = prev.filter(img => img.index !== index);
+            return [...filtered, { index, file, preview: objectUrl }];
+        });
+    };
+
+    const removeInstructionImage = (index: number) => {
+        const instruction = instructions[index];
+
+        // Revoke object URL
+        if (instruction?.image) {
+            URL.revokeObjectURL(instruction.image);
+        }
+
+        // Remove from form state
+        const updatedInstructions = [...form.getValues('instructions')];
+        updatedInstructions[index].image = null;
+        form.setValue('instructions', updatedInstructions);
+
+        // Remove from file storage
+        setInstructionImageFiles(prev => prev.filter(img => img.index !== index));
     };
 
     const addIngredient = () => {
@@ -156,7 +141,20 @@ const CreateRecipeForm = () => {
 
     const removeInstruction = (index: number) => {
         if (instructions.length > 1) {
+            // Clean up instruction image if exists
+            removeInstructionImage(index);
+
             removeInstructionField(index);
+
+            // Reindex remaining instruction images
+            setInstructionImageFiles(prev =>
+                prev
+                    .filter(img => img.index !== index)
+                    .map(img => ({
+                        ...img,
+                        index: img.index > index ? img.index - 1 : img.index
+                    }))
+            );
         }
     };
 
@@ -170,10 +168,79 @@ const CreateRecipeForm = () => {
         }
     };
 
-    const onSubmit = (data: RecipeFormValues) => {
+    const onSubmit = async (data: RecipeFormValues) => {
         console.log('Form Data:', data);
-        console.log('Hero Image:', heroImage);
-        // Handle form submission
+        console.log('Hero Image file:', heroImageFile);
+        console.log('Instruction Image files:', instructionImageFiles);
+
+        const formData = new FormData();
+
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        formData.append('prepTime', data.prepTime);
+        formData.append('cookTime', data.cookTime);
+        formData.append('servings', data.servings);
+        formData.append('difficulty', data.difficulty.toLocaleLowerCase());
+
+        // Backend expects single cuisine and mealType
+        if (data.cuisines[0]) {
+            formData.append('cuisine', data.cuisines[0].toLowerCase());
+        }
+        if (data.mealTypes[0]) {
+            formData.append('mealType', data.mealTypes[0].toLowerCase());
+        }
+
+        // Map ingredients to backend format
+        formData.append(
+            'ingredients',
+            JSON.stringify(
+                data.ingredients.map((ingredient) => ({
+                    name: ingredient.name,
+                    quantity: Number(ingredient.qty) || 0,
+                    unit: ingredient.unit,
+                })),
+            ),
+        );
+
+        // Prepare instructions (without image URLs, those will be added by backend)
+        const instructionsForBackend = data.instructions.map((inst) => ({
+            step: inst.step,
+            description: inst.description,
+            duration: inst.duration,
+            image: null, // Will be populated by backend after upload
+        }));
+
+        formData.append('instructions', JSON.stringify(instructionsForBackend));
+        formData.append('tags', JSON.stringify([...data.cuisines, ...data.mealTypes]));
+        formData.append('isPublished', 'true');
+
+        // Append hero image
+        if (heroImageFile) {
+            formData.append('heroImage', heroImageFile);
+        }
+
+        // Append instruction images with their indices
+        instructionImageFiles.forEach((imgFile) => {
+            // Use array notation with index to maintain order
+            formData.append(`instructionImages[${imgFile.index}]`, imgFile.file);
+        });
+
+        try {
+            const response = await createRecipeMutate(formData);
+            console.log('Recipe created successfully:', response);
+
+            // Clean up object URLs
+            if (heroImage) {
+                URL.revokeObjectURL(heroImage);
+            }
+            instructionImageFiles.forEach(img => {
+                URL.revokeObjectURL(img.preview);
+            });
+
+            // TODO: add toast + navigation if needed
+        } catch (error) {
+            console.error('Failed to create recipe:', error);
+        }
     };
 
     return (
@@ -200,7 +267,7 @@ const CreateRecipeForm = () => {
                                         accept="image/*"
                                         onChange={handleImageUpload}
                                     />
-                                    <span className="px-6 py-2.5 bg-secondary rounded-lg text-muted font-medium cursor-pointer transition-colors inline-block text-sm hover:bg-muted/80">
+                                    <span className="px-6 py-2.5 bg-secondary rounded-lg text-muted font-medium cursor-pointer transition-colors inline-block text-sm hover:bg-secondary/80">
                                         Select Photo
                                     </span>
                                 </label>
@@ -210,7 +277,13 @@ const CreateRecipeForm = () => {
                                 <img src={heroImage} alt="Hero" className="w-full h-full object-cover rounded-lg" />
                                 <Button
                                     type="button"
-                                    onClick={() => setHeroImage(null)}
+                                    onClick={() => {
+                                        if (heroImage) {
+                                            URL.revokeObjectURL(heroImage);
+                                        }
+                                        setHeroImage(null);
+                                        setHeroImageFile(null);
+                                    }}
                                     className="absolute top-4 right-4 bg-destructive/85 hover:bg-destructive rounded-lg cursor-pointer"
                                 >
                                     <Trash2Icon className="size-5" />
@@ -478,8 +551,7 @@ const CreateRecipeForm = () => {
                                                         </FormItem>
                                                     )}
                                                 />
-                                                <div className="flex flex-col">
-
+                                                <div className="flex flex-col gap-2">
                                                     <FormField
                                                         control={form.control}
                                                         name={`instructions.${index}.duration`}
@@ -490,7 +562,7 @@ const CreateRecipeForm = () => {
                                                                         type="number"
                                                                         min={0}
                                                                         placeholder="5"
-                                                                        className="placeholder:text-muted-foreground/60 ring ring-ring/40 [html.dark_&]:border-none focus-visible:ring focus-visible:ring-secondary/70 focus-within:border-none resize-none mb-2"
+                                                                        className="placeholder:text-muted-foreground/60 ring ring-ring/40 [html.dark_&]:border-none focus-visible:ring focus-visible:ring-secondary/70 focus-within:border-none"
                                                                         {...field}
                                                                         onChange={(e) => field.onChange(Number(e.target.value))}
                                                                     />
@@ -501,6 +573,7 @@ const CreateRecipeForm = () => {
                                                     />
                                                     {instructions.length > 1 && (
                                                         <Button
+                                                            type="button"
                                                             size="icon"
                                                             onClick={() => removeInstruction(index)}
                                                             className="shrink-0 w-full bg-destructive/15 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 cursor-pointer"
@@ -510,6 +583,8 @@ const CreateRecipeForm = () => {
                                                     )}
                                                 </div>
                                             </div>
+
+                                            {/* Instruction Image Preview */}
                                             {instruction?.image && (
                                                 <div className="relative inline-block mt-2">
                                                     <img
@@ -517,8 +592,19 @@ const CreateRecipeForm = () => {
                                                         alt={`Step ${instruction.step}`}
                                                         className="w-32 h-32 object-cover rounded-lg"
                                                     />
+                                                    <Button
+                                                        type="button"
+                                                        size="icon"
+                                                        variant="destructive"
+                                                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full shadow-lg"
+                                                        onClick={() => removeInstructionImage(index)}
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </Button>
                                                 </div>
                                             )}
+
+                                            {/* Image Upload Button */}
                                             <Button
                                                 type="button"
                                                 variant="secondary"
@@ -531,9 +617,7 @@ const CreateRecipeForm = () => {
                                                     input.onchange = (e) => {
                                                         const file = (e.target as HTMLInputElement).files?.[0];
                                                         if (file) {
-                                                            const updated = [...form.getValues('instructions')];
-                                                            updated[index].image = URL.createObjectURL(file);
-                                                            form.setValue('instructions', updated);
+                                                            handleInstructionImageUpload(index, file);
                                                         }
                                                     };
                                                     input.click();
@@ -544,7 +628,7 @@ const CreateRecipeForm = () => {
                                             </Button>
                                         </div>
                                     </div>
-                                )
+                                );
                             })}
 
                             <Button
@@ -626,8 +710,9 @@ const CreateRecipeForm = () => {
                         <Button
                             type="submit"
                             className="px-6 py-3 bg-secondary text-secondary-foreground hover:bg-secondary/90 font-medium"
+                            disabled={isCreatingRecipe}
                         >
-                            Publish Now
+                            {isCreatingRecipe ? 'Publishing...' : 'Publish Now'}
                         </Button>
                     </div>
                 </form>

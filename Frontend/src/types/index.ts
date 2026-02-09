@@ -74,3 +74,10 @@ export interface RecipesResponse {
     pages: number;
   };
 }
+
+// Extended type to track instruction image files
+export interface InstructionImageFile {
+  index: number;
+  file: File;
+  preview: string;
+}
