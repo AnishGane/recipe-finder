@@ -23,8 +23,9 @@ export const recipeFormSchema = z.object({
     servings: z.string().min(1, "Servings is required"),
     ingredients: z.array(ingredientSchema).min(1, "At least one ingredient is required"),
     instructions: z.array(instructionSchema).min(1, "At least one instruction is required"),
-    cuisines: z.array(z.string()),
-    mealTypes: z.array(z.string()),
+    cuisine: z.string().min(1, "Cuisine is required"),
+    mealType: z.string().min(1, "Meal type is required"),
+    tags: z.string().min(1, "Tags are required at least one"),
 });
 
 export type RecipeFormValues = z.infer<typeof recipeFormSchema>;

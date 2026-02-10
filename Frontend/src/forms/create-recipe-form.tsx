@@ -2,7 +2,7 @@ import { BsCameraFill } from "react-icons/bs";
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { Plus, Image, Check, Clock, ChefHat, Trash2Icon, X } from 'lucide-react';
+import { Plus, Image, Clock, ChefHat, Trash2Icon, X } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -53,8 +54,9 @@ const CreateRecipeForm = () => {
                 { step: 1, description: '', image: null, duration: 5 },
                 { step: 2, description: '', image: null, duration: 10 }
             ],
-            cuisines: ['Italian'],
-            mealTypes: ['Dinner']
+            cuisine: 'Italian',
+            mealType: 'Dinner',
+            tags: ""
         },
     });
 
@@ -158,15 +160,6 @@ const CreateRecipeForm = () => {
         }
     };
 
-    const toggleTag = (category: 'cuisines' | 'mealTypes', tag: string) => {
-        const current = form.getValues(category);
-
-        if (current.includes(tag)) {
-            form.setValue(category, current.filter(t => t !== tag));
-        } else {
-            form.setValue(category, [...current, tag]);
-        }
-    };
 
     const onSubmit = async (data: RecipeFormValues) => {
         console.log('Form Data:', data);
@@ -183,11 +176,11 @@ const CreateRecipeForm = () => {
         formData.append('difficulty', data.difficulty.toLocaleLowerCase());
 
         // Backend expects single cuisine and mealType
-        if (data.cuisines[0]) {
-            formData.append('cuisine', data.cuisines[0].toLowerCase());
+        if (data.cuisine) {
+            formData.append('cuisine', data.cuisine.toLowerCase());
         }
-        if (data.mealTypes[0]) {
-            formData.append('mealType', data.mealTypes[0].toLowerCase());
+        if (data.mealType) {
+            formData.append('mealType', data.mealType.toLowerCase());
         }
 
         // Map ingredients to backend format
@@ -211,7 +204,13 @@ const CreateRecipeForm = () => {
         }));
 
         formData.append('instructions', JSON.stringify(instructionsForBackend));
-        formData.append('tags', JSON.stringify([...data.cuisines, ...data.mealTypes]));
+
+        // Process tags: split by comma and trim each tag
+        const tagsArray = data.tags
+            .split(",")
+            .map(tag => tag.trim())
+            .filter(Boolean);
+        formData.append('tags', JSON.stringify(tagsArray));
         formData.append('isPublished', 'true');
 
         // Append hero image
@@ -220,8 +219,8 @@ const CreateRecipeForm = () => {
         }
 
         // Append instruction images with their indices
+        // Using array notation so backend can match images to instruction steps
         instructionImageFiles.forEach((imgFile) => {
-            // Use array notation with index to maintain order
             formData.append(`instructionImages[${imgFile.index}]`, imgFile.file);
         });
 
@@ -237,7 +236,9 @@ const CreateRecipeForm = () => {
                 URL.revokeObjectURL(img.preview);
             });
 
-            // TODO: add toast + navigation if needed
+            if (response.success) {
+                form.reset();
+            }
         } catch (error) {
             console.error('Failed to create recipe:', error);
         }
@@ -645,66 +646,87 @@ const CreateRecipeForm = () => {
 
                     {/* Cuisines & meal types */}
                     <Card className="rounded-xl border-none ring ring-ring/30 p-6 mb-6">
-                        <h2 className="text-subheading font-semibold text-foreground">Cuisine & Meal Type</h2>
+                        <h2 className="text-subheading font-semibold text-foreground mb-4">Cuisine & Meal Type</h2>
 
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-3">
-                                    Cuisines
-                                </label>
-                                <div className="flex flex-wrap gap-2">
-                                    {CUISINES.map(cuisine => (
-                                        <Button
-                                            key={cuisine}
-                                            type="button"
-                                            onClick={() => toggleTag('cuisines', cuisine)}
-                                            variant="outline"
-                                            className={cn(
-                                                "rounded-full text-sm cursor-pointer font-medium transition-colors",
-                                                form.watch('cuisines').includes(cuisine)
-                                                    ? 'bg-secondary/20 text-secondary border-2 border-secondary hover:bg-secondary/30'
-                                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                            )}
-                                        >
-                                            {form.watch('cuisines').includes(cuisine) && (
-                                                <Check className="w-4 h-4 inline mr-1" />
-                                            )}
-                                            {cuisine}
-                                        </Button>
-                                    ))}
-                                </div>
-                            </div>
+                        <div className="space-y-8">
+                            <FormField
+                                control={form.control}
+                                name="cuisine"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Cuisine</FormLabel>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            {CUISINES.map(cuisine => (
+                                                <Button
+                                                    type="button"
+                                                    variant={"secondary"}
+                                                    className={cn("text-foreground bg-secondary/40 cursor-pointer", field.value === cuisine && "bg-secondary")}
+                                                    onClick={() => field.onChange(cuisine)}
+                                                >
+                                                    {cuisine}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-3">
-                                    Meal Type
-                                </label>
-                                <div className="flex flex-wrap gap-2">
-                                    {MEAL_TYPES.map(type => (
-                                        <Button
-                                            key={type}
-                                            type="button"
-                                            onClick={() => toggleTag('mealTypes', type)}
-                                            variant="outline"
-                                            className={cn(
-                                                "rounded-full cursor-pointer text-sm font-medium transition-colors",
-                                                form.watch('mealTypes').includes(type)
-                                                    ? 'bg-secondary/20 text-secondary border-2 border-secondary hover:bg-secondary/30'
-                                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                            )}
-                                        >
-                                            {type}
-                                        </Button>
-                                    ))}
-                                </div>
-                            </div>
+                            <FormField
+                                control={form.control}
+                                name="mealType"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Meal Type</FormLabel>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            {MEAL_TYPES.map(type => (
+                                                <Button
+                                                    type="button"
+                                                    variant={"secondary"}
+                                                    className={cn("text-foreground bg-secondary/40 cursor-pointer", field.value === type && "bg-secondary")}
+                                                    onClick={() => field.onChange(type)}
+                                                >
+                                                    {type}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </Card>
+
+                    <Card className="rounded-xl border-none ring ring-ring/30 p-6 mb-6">
+                        <h2 className="text-subheading font-semibold text-foreground mb-1">Tags for your recipe</h2>
+
+                        <div className="space-y-4">
+                            <FormField
+                                control={form.control}
+                                name="tags"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="">Tags</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="e.g. healthy, vegan, vegetarian"
+                                                className="placeholder:text-muted-foreground/60 ring ring-ring/40 [html.dark_&]:border-none focus-visible:ring-secondary/70 focus-within:border-none"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormDescription className="text-xs">
+                                            Separate tags with a comma
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     </Card>
 
                     {/* Action Buttons */}
                     <div className="flex items-center justify-between py-6">
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Check className="size-4 text-secondary" />
                             <span className="text-xs">You can always change this later</span>
                         </div>
                         <Button

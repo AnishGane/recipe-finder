@@ -3,11 +3,10 @@ import Recipe from "../models/Recipe.model";
 import { uploadImageToCloudinary } from "../utils/uploadImage";
 import { generateSlug } from "../utils/helper";
 import { AuthRequest, CloudinaryUploadResult } from "../types";
-
-// Create a new recipe
 import { IngredientInput, InstructionInput } from "../types/recipe.type";
 import { getHeroImage, getInstructionImages, getUploadedFiles } from "../middlewares/multer";
 
+// Create a new recipe
 export const createRecipe: RequestHandler = async (req, res) => {
   try {
     const authReq = req as AuthRequest;

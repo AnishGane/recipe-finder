@@ -48,15 +48,41 @@ export interface RecipeUploadFiles {
 }
 
 /**
- * Safely extract and type files from multer upload.fields()
+ * Safely extract and type files from multer upload.any() or upload.fields()
+ * Handles both exact field names and array notation like instructionImages[0]
  */
 export function getUploadedFiles(
   files: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] } | undefined
 ): RecipeUploadFiles {
-  if (!files || Array.isArray(files)) {
+  if (!files) {
     return {};
   }
 
+  // If files is an array (from upload.any()), convert to object
+  if (Array.isArray(files)) {
+    const result: RecipeUploadFiles = {};
+    
+    files.forEach((file) => {
+      // Handle heroImage
+      if (file.fieldname === 'heroImage') {
+        if (!result.heroImage) {
+          result.heroImage = [];
+        }
+        result.heroImage.push(file);
+      }
+      // Handle instructionImages[0], instructionImages[1], etc.
+      else if (file.fieldname.startsWith('instructionImages')) {
+        if (!result.instructionImages) {
+          result.instructionImages = [];
+        }
+        result.instructionImages.push(file);
+      }
+    });
+    
+    return result;
+  }
+
+  // If files is an object (from upload.fields())
   return {
     heroImage: files['heroImage'] as Express.Multer.File[] | undefined,
     instructionImages: files['instructionImages'] as Express.Multer.File[] | undefined,

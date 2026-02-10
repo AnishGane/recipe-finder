@@ -13,10 +13,7 @@ const recipeRouter = express.Router();
 recipeRouter.post(
   "/create",
   auth,
-  upload.fields([
-    { name: "heroImage", maxCount: 1 },
-    { name: "instructionImages", maxCount: 10 },
-  ]),
+  upload.any(),
   createRecipe,
 );
 recipeRouter.get("/", auth, getRecipes);
