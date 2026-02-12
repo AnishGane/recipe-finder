@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react"
 import RecipeCard from "./recipe-card";
-import { fetchRecipesByTag } from "@/api/api";
+import { fetchRecipesByMealType } from "@/api/api";
 import {
     Card,
     CardContent,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import type { Recipe } from "@/types/recipe.type";
 
 const TRENDING_TAGS = ["vegan", "healthy", "summerfood", "soupseason", "lowcarb", "highprotein", "glutenfree", "keto", "quickmeals"];
 
@@ -22,37 +23,35 @@ const TOP_CHEFS = [
     { image: "https://images.unsplash.com/photo-1597692493647-25bd4240a3f2?q=80&w=1003&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "Mike Smith", followers: "12K" },
 ]
 
-
 const Tabsrecipe = () => {
-    const [activeTab, setActiveTab] = useState("allrecipe");
+    const [activeTab, setActiveTab] = useState("allmealtype");
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["recipes", activeTab],
-        queryFn: () => fetchRecipesByTag(activeTab),
+        queryFn: () => fetchRecipesByMealType(activeTab),
         staleTime: 1000 * 60 * 5, // 5 minutes
     })
 
     const recipes = data?.recipes || []
 
     return (
-        <div className="my-10">
+        <section className="my-10">
             <div className=" pb-2.5 border-b border-border/20">
-                <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="allrecipe">
+                <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="allmealtype">
                     <TabsList className="gap-3" variant="line">
-                        <TabsTrigger value="allrecipe">All Recipes</TabsTrigger>
+                        <TabsTrigger value="allmealtype">All Meal Type</TabsTrigger>
                         <TabsTrigger value="breakfast">Breakfast</TabsTrigger>
                         <TabsTrigger value="lunch">Lunch</TabsTrigger>
+                        <TabsTrigger value="snack">Snack</TabsTrigger>
                         <TabsTrigger value="dinner">Dinner</TabsTrigger>
                         <TabsTrigger value="desserts">Desserts</TabsTrigger>
-                        <TabsTrigger value="vegan">Vegan</TabsTrigger>
-                        <TabsTrigger value="gluten-free">Gluten-Free</TabsTrigger>
                     </TabsList>
                 </Tabs>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-5 gap-12 ">
                 <div className="col-span-4">
-                    <h1 className="mt-8 mb-4 text-3xl text-foreground font-semibold font-sn-pro tracking-tight">Trending Recipes🔥</h1>
+                    <h1 className="mt-8 mb-4 text-3xl text-foreground font-semibold font-sn-pro tracking-tight">All Meal Types Recipes🔥</h1>
                     {/* Recipe Grid */}
                     <div className="">
                         {isLoading ? (
@@ -72,14 +71,14 @@ const Tabsrecipe = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {recipes.map((recipe) => (
+                                {recipes.slice(0, 8).map((recipe: Recipe) => (
                                     <RecipeCard key={recipe._id} recipe={recipe} />
                                 ))}
                             </div>
                         )}
                     </div>
                 </div>
-                <div className="mt-12 flex items-center flex-col gap-6">
+                <div className="md:mt-12 flex items-center flex-col gap-6">
                     <Card className="border-none ring-ring/30 ring ">
                         <CardHeader>
                             <CardTitle className="font-semibold text-lg">
@@ -127,7 +126,7 @@ const Tabsrecipe = () => {
                     </Card>
                 </div>
             </div>
-        </div>
+        </section>
     )
 }
 

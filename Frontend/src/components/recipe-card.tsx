@@ -2,7 +2,8 @@ import { Link } from "react-router-dom"
 import { Clock, Users, Star, StarIcon, Bookmark } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import type { Recipe } from "@/types"
+import type { Recipe } from "@/types/recipe.type"
+import { cn } from "@/lib/utils"
 
 interface RecipeCardProps {
     recipe: Recipe
@@ -61,10 +62,7 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
 
                         {/* Meta Info */}
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                                <Clock className="size-4" />
-                                <span>{totalTime} min</span>
-                            </div>
+                            <Badge className={cn("text-[10px]", recipe.difficulty.toLowerCase() == "easy" ? "bg-green-600" : (recipe.difficulty.toLowerCase() == "medium" ? "bg-orange-600" : "bg-red-600"))}>{recipe.difficulty}</Badge>
                             <div className="flex items-center gap-1">
                                 <Users className="size-4" />
                                 <span>{recipe.servings}</span>
@@ -99,7 +97,7 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
                                 e.stopPropagation();
                                 // TODO: Implement bookmark toggle logic
                             }}
-                            className="hover:text-primary transition-colors"
+                            className="hover:text-primary cursor-pointer transition-colors"
                             aria-label="Bookmark recipe"
                         >
                             <Bookmark className="size-5" />

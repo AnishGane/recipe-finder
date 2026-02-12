@@ -1,14 +1,14 @@
 import { API_PATHS } from "@/constants/api-paths";
 import axiosInstance from "@/lib/axios-instance";
-import type { RecipesResponse } from "@/types";
+import type { RecipesResponse } from "@/types/recipe.type";
 
-export const fetchRecipesByTag = async (
-  tag: string,
+export const fetchRecipesByMealType = async (
+  mealType: string,
 ): Promise<RecipesResponse> => {
-  const params: any = { limit: 12 };
+  const params: Record<string, string> = {};
 
-  if (tag !== "allrecipe") {
-    params.tag = tag;
+  if (mealType !== "allmealtype") {
+    params.mealType = mealType;
   }
 
   const response = await axiosInstance.get(API_PATHS.RECIPES.GET_ALL, {

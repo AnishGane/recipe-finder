@@ -30,7 +30,7 @@ import { CUISINES, DIFFICULTY_LEVELS, MEAL_TYPES } from "@/constants";
 import { recipeFormSchema, type RecipeFormValues } from "@/validations/create-recipe-schema";
 import { useMutation } from "@tanstack/react-query";
 import { createRecipe } from "@/api/api";
-import type { InstructionImageFile } from "@/types";
+import type { InstructionImageFile } from "@/types/recipe.type";
 
 const CreateRecipeForm = () => {
     const [heroImage, setHeroImage] = useState<string | null>(null);

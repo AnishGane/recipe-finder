@@ -4,7 +4,11 @@ import { uploadImageToCloudinary } from "../utils/uploadImage";
 import { generateSlug } from "../utils/helper";
 import { AuthRequest, CloudinaryUploadResult } from "../types";
 import { IngredientInput, InstructionInput } from "../types/recipe.type";
-import { getHeroImage, getInstructionImages, getUploadedFiles } from "../middlewares/multer";
+import {
+  getHeroImage,
+  getInstructionImages,
+  getUploadedFiles,
+} from "../middlewares/multer";
 
 // Create a new recipe
 export const createRecipe: RequestHandler = async (req, res) => {
@@ -63,10 +67,10 @@ export const createRecipe: RequestHandler = async (req, res) => {
               { quality: "auto" },
               { fetch_format: "auto" },
             ],
-          }
+          },
         );
         heroImageUrl = result.secure_url;
-        console.log('Hero image uploaded:', heroImageUrl);
+        console.log("Hero image uploaded:", heroImageUrl);
       } catch (uploadError) {
         console.error("Hero image upload error:", uploadError);
         res.status(500).json({ error: "Failed to upload hero image" });
@@ -81,19 +85,14 @@ export const createRecipe: RequestHandler = async (req, res) => {
 
     try {
       parsedIngredients =
-        typeof ingredients === "string" 
-          ? JSON.parse(ingredients) 
-          : ingredients;
-      
+        typeof ingredients === "string" ? JSON.parse(ingredients) : ingredients;
+
       parsedInstructions =
         typeof instructions === "string"
           ? JSON.parse(instructions)
           : instructions;
-      
-      parsedTags = 
-        typeof tags === "string" 
-          ? JSON.parse(tags) 
-          : tags;
+
+      parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       res.status(400).json({
@@ -105,8 +104,10 @@ export const createRecipe: RequestHandler = async (req, res) => {
     // Handle instruction images upload
     if (instructionImageFiles.length > 0 && parsedInstructions) {
       try {
-        console.log(`Uploading ${instructionImageFiles.length} instruction images...`);
-        
+        console.log(
+          `Uploading ${instructionImageFiles.length} instruction images...`,
+        );
+
         // Create upload promises for each image
         const imageUploadPromises = instructionImageFiles.map(async (file) => {
           // Extract the index from fieldname like "instructionImages[2]"
@@ -114,14 +115,15 @@ export const createRecipe: RequestHandler = async (req, res) => {
           const stepIndex = indexMatch ? parseInt(indexMatch[1]) : -1;
 
           if (stepIndex === -1) {
-            console.warn(`Could not parse index from fieldname: ${file.fieldname}`);
+            console.warn(
+              `Could not parse index from fieldname: ${file.fieldname}`,
+            );
             return null;
           }
 
           try {
-            const result: CloudinaryUploadResult = await uploadImageToCloudinary(
-              file.buffer,
-              {
+            const result: CloudinaryUploadResult =
+              await uploadImageToCloudinary(file.buffer, {
                 folder: "recipe-platform/instructions",
                 transformation: [
                   { width: 800, height: 600, crop: "fill" },
@@ -129,17 +131,22 @@ export const createRecipe: RequestHandler = async (req, res) => {
                   { fetch_format: "auto" },
                 ],
                 public_id: `instruction-${slug}-step-${stepIndex}-${Date.now()}`,
-              }
-            );
+              });
 
-            console.log(`Uploaded instruction image for step ${stepIndex}:`, result.secure_url);
+            console.log(
+              `Uploaded instruction image for step ${stepIndex}:`,
+              result.secure_url,
+            );
 
             return {
               stepIndex,
               url: result.secure_url,
             };
           } catch (uploadError) {
-            console.error(`Failed to upload instruction image for step ${stepIndex}:`, uploadError);
+            console.error(
+              `Failed to upload instruction image for step ${stepIndex}:`,
+              uploadError,
+            );
             return null;
           }
         });
@@ -154,7 +161,7 @@ export const createRecipe: RequestHandler = async (req, res) => {
           }
         });
 
-        console.log('All instruction images uploaded successfully');
+        console.log("All instruction images uploaded successfully");
       } catch (uploadError) {
         console.error("Instruction images upload error:", uploadError);
         // Continue with recipe creation even if some images fail
@@ -179,14 +186,12 @@ export const createRecipe: RequestHandler = async (req, res) => {
       tags: parsedTags || [],
       isPublished: isPublished === "true" || isPublished === true,
       publishedAt:
-        isPublished === "true" || isPublished === true 
-          ? new Date() 
-          : undefined,
+        isPublished === "true" || isPublished === true ? new Date() : undefined,
     });
 
     await recipe.save();
 
-    console.log('Recipe created successfully:', recipe._id);
+    console.log("Recipe created successfully:", recipe._id);
 
     res.status(201).json({
       success: true,
@@ -195,9 +200,9 @@ export const createRecipe: RequestHandler = async (req, res) => {
     });
   } catch (error) {
     console.error("Create recipe error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Failed to create recipe",
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
@@ -213,13 +218,19 @@ export const getRecipes: RequestHandler = async (req, res) => {
       difficulty,
       search,
       userId,
+      mealType,
     } = req.query;
 
     const filter: any = { isPublished: true };
 
     // Filter by tag
-    if (tag && tag !== "allrecipe") {
+    if (tag && tag !== "allmealtype") {
       filter.tags = tag;
+    }
+
+    // Filter by mealType
+    if (mealType) {
+      filter.mealType = mealType;
     }
 
     // Filter by cuisine

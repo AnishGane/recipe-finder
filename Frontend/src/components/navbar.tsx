@@ -71,7 +71,7 @@ const Navbar = () => {
 
                     {/* user avatar */}
                     {avatarUrl ? (
-                        <Avatar className='ring-3 ring-secondary'>
+                        <Avatar className='ring-2 ring-secondary'>
                             <AvatarImage src={avatarUrl} />
                             <AvatarFallback>
                                 {user?.name?.charAt(0).toUpperCase() || "FL"}
