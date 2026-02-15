@@ -42,7 +42,7 @@ export function LoginForm({
     <form id="form-rhf-demo" className={cn("flex flex-col gap-6", className)} {...props} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <div className="relative text-center">
-          <h1 className="text-2xl font-semibold">Welcome Back!</h1>
+          <h1 className="text-2xl font-semibold text-white">Welcome Back!</h1>
           <img src="/Brush.svg" alt="brush" className="absolute -top-11 right-10 size-29" />
         </div>
 
@@ -57,7 +57,7 @@ export function LoginForm({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-1">
-              <FieldLabel htmlFor="form-rhf-demo-email" className="font-normal">
+              <FieldLabel htmlFor="form-rhf-demo-email" className="font-normal text-white">
                 Email
               </FieldLabel>
               <Input
@@ -66,6 +66,8 @@ export function LoginForm({
                 aria-invalid={fieldState.invalid}
                 placeholder="kimmy@example.com"
                 autoComplete="off"
+                autoFocus={true}
+                className="bg-transparent! text-white border-neutral-100 placeholder:text-neutral-300/70 outline-none focus-visible:border-neutral-100"
               />
               {fieldState.invalid && (
                 <FieldError errors={[fieldState.error]} />
@@ -78,7 +80,7 @@ export function LoginForm({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-1">
-              <FieldLabel htmlFor="form-rhf-demo-password" className="font-normal">
+              <FieldLabel htmlFor="form-rhf-demo-password" className="font-normal text-white">
                 Password
               </FieldLabel>
               <div className="relative">
@@ -88,11 +90,12 @@ export function LoginForm({
                   aria-invalid={fieldState.invalid}
                   placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
+                  className="bg-transparent! text-white border-neutral-100 placeholder:text-neutral-300/70 outline-none focus-visible:border-neutral-100"
                 />
                 {showPassword ? (
-                  <EyeIcon onClick={() => setShowPassword(false)} className="size-3.5 absolute right-3 top-1/2 -translate-y-1/2" />
+                  <EyeIcon onClick={() => setShowPassword(false)} className="size-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-white" />
                 ) : (
-                  <EyeOffIcon onClick={() => setShowPassword(true)} className="size-3.5 absolute right-3 top-1/2 -translate-y-1/2" />
+                  <EyeOffIcon onClick={() => setShowPassword(true)} className="size-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-white" />
                 )}
               </div>
               {fieldState.invalid && (
@@ -112,7 +115,7 @@ export function LoginForm({
           </Button>
         </Field>
         <Field className="-mt-2">
-          <FieldDescription className="text-center text-muted">
+          <FieldDescription className="text-center">
             Don&apos;t have an account?{" "}
             <Link to={"/signup"} className="group relative inline-block">
               <span className="font-light">Sign up</span>

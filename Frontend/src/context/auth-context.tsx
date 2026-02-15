@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(null);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+        localStorage.removeItem('vite-ui-theme');
     }
 
     const register = async (name: string, email: string, password: string, confirmPassword: string, avatar?: File | null) => {
@@ -130,7 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-   
+
 
     return (
         <AuthContext.Provider value={{ user, setUser, loading, setLoading, navigate, authLoading, updateUser, clearUser, register, login, error, setError }}>

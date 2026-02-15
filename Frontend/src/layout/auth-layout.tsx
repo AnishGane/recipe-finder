@@ -21,8 +21,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
             <div className="grid min-h-screen lg:grid-cols-2 relative z-10">
                 <div className="flex flex-col gap-4 p-6 md:p-10">
-                    <div className="flex justify-center font-semibold gap-2 text-primary-foreground md:justify-start">
-                        <div className="bg-destructive flex size-6 items-center justify-center rounded-sm">
+                    <div className="flex justify-center font-semibold gap-2 text-white md:justify-start">
+                        <div className="bg-destructive flex size-6 items-center text-white justify-center rounded-sm">
                             <CookingPot className="size-4" />
                         </div>
                         Flavourly
@@ -37,7 +37,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     <img
                         src="/auth_bg.jfif"
                         alt="auth background image"
-                        className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                        className="absolute inset-0 h-full w-full object-cover"
                     />
                 </div>
             </div>

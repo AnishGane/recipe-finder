@@ -50,10 +50,10 @@ export function SignupForm({
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <div className="relative">
-            <h1 className="text-2xl font-semibold">Create a new account</h1>
+            <h1 className="text-2xl font-semibold text-white">Create a new account</h1>
             <img src="/Brush.svg" alt="brush" className="absolute -top-10 -right-4 size-28" />
           </div>
-          <p className="text-muted/80 text-xs text-balance">
+          <p className=" text-white/60 text-xs text-balance">
             Fill in the form below to create your account
           </p>
         </div>
@@ -83,7 +83,7 @@ export function SignupForm({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-1">
-                <FieldLabel htmlFor="form-rhf-demo-name" className="font-normal">
+                <FieldLabel htmlFor="form-rhf-demo-name" className="font-normal text-white">
                   Full Name
                 </FieldLabel>
                 <Input
@@ -91,7 +91,9 @@ export function SignupForm({
                   id="form-rhf-demo-name"
                   aria-invalid={fieldState.invalid}
                   placeholder="kimmy"
-                  autoComplete="off"
+                  autoComplete="on"
+                  autoFocus
+                  className="bg-transparent! text-white border-neutral-100 placeholder:text-neutral-300/70 outline-none focus-visible:border-neutral-100"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -104,7 +106,7 @@ export function SignupForm({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-1">
-                <FieldLabel htmlFor="form-rhf-demo-email" className="font-normal">
+                <FieldLabel htmlFor="form-rhf-demo-email" className="font-normal text-white">
                   Email
                 </FieldLabel>
                 <Input
@@ -112,9 +114,10 @@ export function SignupForm({
                   id="form-rhf-demo-email"
                   aria-invalid={fieldState.invalid}
                   placeholder="kimmy@example.com"
-                  autoComplete="off"
+                  autoComplete="on"
+                  className="bg-transparent! text-white border-neutral-100 placeholder:text-neutral-300/70 outline-none focus-visible:border-neutral-100"
                 />
-                <FieldDescription className="text-[11px] pt-1 text-muted">
+                <FieldDescription className="text-[11px] pt-1 text-white/60">
                   We&apos;ll use this to contact you. We will not share your email
                   with anyone else.
                 </FieldDescription>
@@ -129,7 +132,7 @@ export function SignupForm({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-1">
-                <FieldLabel htmlFor="form-rhf-demo-password" className="font-normal">
+                <FieldLabel htmlFor="form-rhf-demo-password" className="font-normal text-white  ">
                   Password
                 </FieldLabel>
                 <div className="relative">
@@ -139,19 +142,20 @@ export function SignupForm({
                     aria-invalid={fieldState.invalid}
                     placeholder="••••••••"
                     type={showPassword.password ? "text" : "password"}
+                    className="bg-transparent! text-white border-neutral-100 placeholder:text-neutral-300/70 outline-none focus-visible:border-neutral-100"
                   />
                   {showPassword.password ? (
                     <EyeIcon onClick={() => setShowPassword({
                       ...showPassword,
                       password: false
-                    })} className="size-3.5 absolute right-3 top-3 cursor-pointer" />
+                    })} className="size-3.5 absolute right-3 top-3 cursor-pointer text-white" />
                   ) : (
                     <EyeOffIcon onClick={() => setShowPassword({
                       ...showPassword,
                       password: true
-                    })} className="size-3.5 absolute top-3 right-3 cursor-pointer" />
+                    })} className="size-3.5 absolute top-3 right-3 cursor-pointer text-white" />
                   )}
-                  <FieldDescription className="text-[11px] pt-1.5 text-muted">
+                  <FieldDescription className="text-[11px] pt-1.5 text-white/60">
                     Must be atleast 6 characters.
                   </FieldDescription>
                 </div>
@@ -166,7 +170,7 @@ export function SignupForm({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-1">
-                <FieldLabel htmlFor="form-rhf-demo-confirmPassword" className="font-normal">
+                <FieldLabel htmlFor="form-rhf-demo-confirmPassword" className="font-normal text-white">
                   Confirm Password
                 </FieldLabel>
                 <div className="relative">
@@ -176,17 +180,18 @@ export function SignupForm({
                     aria-invalid={fieldState.invalid}
                     placeholder="••••••••"
                     type={showPassword.confirmPassword ? "text" : "password"}
+                    className="bg-transparent! text-white border-neutral-100 placeholder:text-neutral-300/70 outline-none focus-visible:border-neutral-100"
                   />
                   {showPassword.confirmPassword ? (
                     <EyeIcon onClick={() => setShowPassword({
                       ...showPassword,
                       confirmPassword: false
-                    })} className="size-3.5 absolute right-3 top-3 cursor-pointer" />
+                    })} className="size-3.5 absolute right-3 top-3 cursor-pointer text-white" />
                   ) : (
                     <EyeOffIcon onClick={() => setShowPassword({
                       ...showPassword,
                       confirmPassword: true
-                    })} className="size-3.5 absolute top-3 right-3 cursor-pointer" />
+                    })} className="size-3.5 absolute top-3 right-3 cursor-pointer text-white" />
                   )}
                 </div>
                 {fieldState.invalid && (
@@ -207,7 +212,7 @@ export function SignupForm({
           </Button>
         </Field>
         <Field className="-mt-2">
-          <FieldDescription className="px-6 text-center text-muted">
+          <FieldDescription className="px-6 text-center">
             Already have an account? <Link to={"/login"} className="group relative inline-block">
               <span className="font-light">Sign in</span>
               <span className="absolute bottom-0 left-0 group-hover:w-full w-0 h-px bg-destructive transition-all duration-200" />

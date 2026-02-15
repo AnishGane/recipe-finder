@@ -15,6 +15,7 @@ const Navbar = () => {
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('vite-ui-theme'); // Clear theme on logout
         setUser(null);
         navigate('/login');
     }
@@ -60,7 +61,7 @@ const Navbar = () => {
                             <LogOutIcon />
                             <span className="sr-only">Log out</span>
                         </Button>
-                    )}                    
+                    )}
                     <ModeToggle />
                     {/* Create Recipe CTA */}
                     <Button onClick={() => navigate('/create-recipe')} className='bg-secondary  hover:bg-secondary/90 cursor-pointer rounded-full font-normal p-4'>

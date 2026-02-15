@@ -23,7 +23,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response Interceptor
@@ -38,20 +38,21 @@ axiosInstance.interceptors.response.use(
         // Token expired or invalid
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("vite-ui-theme");
 
         // Redirect to login page
         window.location.href = "/login";
       } else if (error.response.status === 500) {
         alert(
           "500 says: " +
-            (error.response.data?.message || "Internal Server Error")
+            (error.response.data?.message || "Internal Server Error"),
         );
       }
     } else if (error.code === "ECONNABORTED") {
       alert("Request timed out. Please try again.");
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

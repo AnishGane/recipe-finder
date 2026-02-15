@@ -106,7 +106,7 @@ export function ProfileImageSelector({
                     tabIndex={0}
                     aria-label={preview ? "Change profile picture" : "Upload profile picture"}
                     className={cn(
-                        "size-24 rounded-full border-2 border-dashed border-border bg-muted flex items-center justify-center cursor-pointer overflow-hidden transition-all hover:border-primary",
+                        "size-24 rounded-full border-2 border-dashed border-border bg-muted/40 flex items-center justify-center cursor-pointer overflow-hidden transition-all hover:border-primary/60",
                         preview && "border-solid border-destructive"
                     )}
                 >
@@ -119,7 +119,8 @@ export function ProfileImageSelector({
                     ) : (
                         <Camera className="size-8 text-muted-foreground" />
                     )}
-                </div>                {/* Remove Button */}
+                </div>
+                {/* Remove Button */}
                 {preview && (
                     <button
                         type="button"
@@ -148,10 +149,10 @@ export function ProfileImageSelector({
                 {error ? (
                     <p className="text-xs text-destructive font-medium">{error}</p>
                 ) : (
-                    <p className="text-xs text-muted/50">
+                    <p className="text-xs text-white/60">
                         Click to upload profile picture
                         <br />
-                        <span className="text-[10px]">(Max size: 5MB)</span>
+                        <span className="text-xs">(Max size: 5MB)</span>
                     </p>
                 )}
             </div>
