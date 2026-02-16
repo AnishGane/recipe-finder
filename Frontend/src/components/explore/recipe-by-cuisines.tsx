@@ -25,7 +25,7 @@ const RecipeByCuisine = () => {
     const cuisineList = cuisineListData?.cuisines || []
 
     return (
-        <section className="my-10">
+        <section className="my-14">
             <div className="pb-2.5 border-b border-border/20">
                 {cuisineLoading ? (
                     <div className="flex items-center gap-2 py-2">

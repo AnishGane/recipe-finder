@@ -75,15 +75,50 @@ export const CUISINES = [
 ] as const;
 
 export const MEAL_TYPES = [
-  'Breakfast',
-  'Lunch',
-  'Dinner',
-  'Snack',
-  'Dessert'
+  "Breakfast",
+  "Lunch",
+  "Dinner",
+  "Snack",
+  "Dessert",
 ] as const;
 
-export const DIFFICULTY_LEVELS = [
-  'Easy',
-  'Medium',
-  'Hard'
-] as const;
+export const DIFFICULTY_LEVELS = ["Easy", "Medium", "Hard"] as const;
+
+export const stats = [
+  { name: "Active Users", value: "25k" },
+  { name: "Recipes Shared", value: "1.3k" },
+  { name: "Chef Members", value: "500" },
+];
+
+export const TRENDING_TAGS = [
+  "vegan",
+  "healthy",
+  "summerfood",
+  "soupseason",
+  "lowcarb",
+  "highprotein",
+  "glutenfree",
+  "keto",
+  "quickmeals",
+];
+
+export const TOP_CHEFS = [
+  {
+    image:
+      "https://images.unsplash.com/photo-1597692493647-25bd4240a3f2?q=80&w=1003&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name: "Chef Gordon",
+    followers: "12K",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1597692493647-25bd4240a3f2?q=80&w=1003&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name: "Chef Ramsey",
+    followers: "12K",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1597692493647-25bd4240a3f2?q=80&w=1003&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name: "Mike Smith",
+    followers: "12K",
+  },
+];

@@ -21,7 +21,7 @@ const Navbar = () => {
     }
 
     return (
-        <div className='bg-transparent sticky top-0 px-6 z-30 sm:px-8 md:px-10 backdrop-blur-2xl support-backdrop-blur:bg-white/60 lg:px-12 py-3 border-b border-border/20'>
+        <div className='bg-white/60 dark:bg-transparent sticky top-0 px-6 z-30 sm:px-8 md:px-10 backdrop-blur-2xl support-backdrop-blur:bg-white/60 lg:px-12 py-3 border-b border-border/20'>
             <div className="flex items-center justify-between">
                 {/* Logo */}
                 <Link to={"/"}>
@@ -55,14 +55,14 @@ const Navbar = () => {
                     ))}
                 </ul>
 
-                <div className="flex items-center justify-center gap-5">
+                <div className="flex items-center justify-center gap-4">
+                    <ModeToggle />
                     {user && (
-                        <Button variant={"ghost"} onClick={logout} aria-label="Log out">
+                        <Button variant={"destructive"} onClick={logout} aria-label="Log out" className='rounded-lg'>
                             <LogOutIcon />
                             <span className="sr-only">Log out</span>
                         </Button>
                     )}
-                    <ModeToggle />
                     {/* Create Recipe CTA */}
                     <Button onClick={() => navigate('/create-recipe')} className='bg-secondary  hover:bg-secondary/90 cursor-pointer rounded-full font-normal p-4'>
                         <Plus className='size-4 -mr-1 text-secondary-foreground' />
