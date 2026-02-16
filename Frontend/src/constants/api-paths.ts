@@ -19,5 +19,8 @@ export const API_PATHS = {
     UPDATE: (id: string) => `/api/recipes/${id}`,
     DELETE: (id: string) => `/api/recipes/${id}`,
     MY_RECIPES: "/api/recipes/my/recipes",
+
+    GET_CUISINE_LIST: "/api/recipes/cuisine-list",
+    GET_MEAL_TYPES: "/api/recipes/mealtype-list",
   },
 };

@@ -1,6 +1,5 @@
 import { Navigate, Route } from "react-router-dom"
 import { Routes } from "react-router-dom"
-import Home from "./pages/home"
 import Login from "./pages/login"
 import Signup from "./pages/signup"
 import { PublicRoute } from "./components/public-route"
@@ -10,6 +9,7 @@ import MyCookbook from "./pages/my-cookbook"
 import SavedRecipes from "./pages/saved-recipes"
 import Communities from "./pages/communities"
 import CreateRecipePage from "./components/create-recipe"
+import Explore from "./pages/explore"
 
 const App = () => {
   return (
@@ -21,7 +21,7 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <Home />
+              <Explore />
             </ProtectedRoute>
           }
         />

@@ -1,4 +1,4 @@
-import SearchInput from "./search-input";
+import SearchInput from "../search-input";
 
 const HeroBanner = () => {
     return (

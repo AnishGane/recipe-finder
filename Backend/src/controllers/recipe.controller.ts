@@ -223,11 +223,6 @@ export const getRecipes: RequestHandler = async (req, res) => {
 
     const filter: any = { isPublished: true };
 
-    // Filter by tag
-    if (tag && tag !== "allmealtype") {
-      filter.tags = tag;
-    }
-
     // Filter by mealType
     if (mealType) {
       filter.mealType = mealType;
@@ -280,6 +275,38 @@ export const getRecipes: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Get recipes error:", error);
     res.status(500).json({ error: "Failed to fetch recipes" });
+  }
+};
+
+export const getCuisineList: RequestHandler = async (req, res) => {
+  try {
+    const cuisines = await Recipe.distinct("cuisine", {
+      isPublished: true,
+      cuisine: { $exists: true, $ne: null },
+    });
+    res.status(200).json({
+      success: true,
+      cuisines,
+    });
+  } catch (error) {
+    console.error("Get cuisines error:", error);
+    res.status(500).json({ error: "Failed to fetch cuisines" });
+  }
+};
+
+export const getMealTypeList: RequestHandler = async (req, res) => {
+  try {
+    const mealtypes = await Recipe.distinct("mealType", {
+      isPublished: true,
+      mealType: { $exists: true, $ne: null },
+    });
+    res.status(200).json({
+      success: true,
+      mealtypes,
+    });
+  } catch (error) {
+    console.error("Get mealtypes error:", error);
+    res.status(500).json({ error: "Failed to fetch mealtypes" });
   }
 };
 
