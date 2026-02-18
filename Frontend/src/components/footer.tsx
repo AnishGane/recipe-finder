@@ -29,27 +29,22 @@ const Footer = () => {
                         {/* Social Links */}
                         <div>
                             <h4 className="font-medium text-foreground mt-4 mb-2">Social</h4>
-                            <div className="flex gap-3">
+                            <div className="flex gap-2">
                                 {FOOTER_LINKS.social.map((link) => {
                                     const Icon = link.icon;
                                     const bgColor = link.color
                                     return (
-                                        <div
+                                        <a
                                             key={link.label}
-                                            className="p-3 text-white rounded-lg"
+                                            href={link.href}
+                                            aria-label={link.label}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-3 text-white rounded-lg inline-block"
                                             style={{ backgroundColor: bgColor }}
                                         >
-                                            <a
-
-                                                href={link.href}
-                                                aria-label={link.label}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className=""
-                                            >
-                                                <Icon className="size-5" />
-                                            </a>
-                                        </div>
+                                            <Icon className="size-5" />
+                                        </a>
                                     )
                                 })}
                             </div>
@@ -94,7 +89,7 @@ const Footer = () => {
                     {/* Get Info / Contact */}
                     <div className="">
                         <h4 className="font-semibold text-foreground mb-4">Get in Touch</h4>
-                        <ul className="space-y-3">
+                        <ul className="space-y-2">
                             {FOOTER_LINKS.getInTouch.map((link) => {
                                 const Icon = link.icon;
                                 return (

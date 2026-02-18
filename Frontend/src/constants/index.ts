@@ -93,7 +93,7 @@ export const FOOTER_LINKS = {
       icon: MapPin,
       label: "Address",
       desc: "123 Main Street, City, Country",
-      href: "https://maps.google.com/?q=123 Main Street, City, Country",
+      href: "https://maps.google.com/?q=123+Main+Street%2C+City%2C+Country",
     },
   ],
 };

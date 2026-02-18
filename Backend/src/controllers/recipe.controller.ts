@@ -530,12 +530,14 @@ export const searchRecipes: RequestHandler = async (req, res) => {
 
     // Filter by prep time
     if (prepTimeMax) {
-      filter.prepTime = { $lte: Number(prepTimeMax) };
+      const val = Number(prepTimeMax);
+      if (!Number.isNaN(val)) filter.prepTime = { $lte: val };
     }
 
     // Filter by cook time
     if (cookTimeMax) {
-      filter.cookTime = { $lte: Number(cookTimeMax) };
+      const val = Number(cookTimeMax);
+      if (!Number.isNaN(val)) filter.cookTime = { $lte: val };
     }
 
     // Filter by tags
@@ -546,7 +548,8 @@ export const searchRecipes: RequestHandler = async (req, res) => {
 
     // Filter by minimum rating
     if (minRating) {
-      filter.averageRating = { $gte: Number(minRating) };
+      const val = Number(minRating);
+      if (!Number.isNaN(val)) filter.averageRating = { $gte: val };
     }
 
     // Sorting
@@ -568,8 +571,11 @@ export const searchRecipes: RequestHandler = async (req, res) => {
         sort = { publishedAt: -1 }; // relevance (can add text score later)
     }
 
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(
+      100,
+      Math.max(1, parseInt(limit as string, 10) || 12),
+    );
     const skip = (pageNum - 1) * limitNum;
 
     const [recipes, total] = await Promise.all([
