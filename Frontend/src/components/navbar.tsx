@@ -21,7 +21,7 @@ const Navbar = () => {
     }
 
     return (
-        <div className='bg-white/60 dark:bg-transparent sticky top-0 px-6 z-30 sm:px-8 md:px-10 backdrop-blur-2xl support-backdrop-blur:bg-white/60 lg:px-12 py-3 border-b border-border/20'>
+        <div className='bg-white dark:bg-transparent sticky top-0 px-6 z-30 sm:px-8 md:px-10 backdrop-blur-2xl support-backdrop-blur:bg-white/60 lg:px-12 py-3 border-b border-border/10'>
             <div className="flex items-center justify-between">
                 {/* Logo */}
                 <Link to={"/"}>
@@ -42,7 +42,7 @@ const Navbar = () => {
                                 to={item.link}
                                 className={({ isActive }) =>
                                     cn(
-                                        "text-sm  text-foreground px-3 py-1.5 rounded-md transition-colors",
+                                        "text-sm  text-foreground px-3 py-2 rounded-md transition-colors",
                                         isActive && "bg-accent/75 text-muted",
                                         !isActive && "hover:bg-accent/10"
                                     )
@@ -64,7 +64,7 @@ const Navbar = () => {
                         </Button>
                     )}
                     {/* Create Recipe CTA */}
-                    <Button onClick={() => navigate('/create-recipe')} variant={"ghost"} className='hover:bg-muted-foreground/60! rounded-full cursor-pointer text-foreground'>
+                    <Button onClick={() => navigate('/create-recipe')} variant={"ghost"} className='hover:bg-muted-foreground/10! rounded-full hover:text-foreground cursor-pointer text-foreground'>
                         <Plus className='size-4' />
                         <span className='sr-only'>create recipe</span>
                     </Button>

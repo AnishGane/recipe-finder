@@ -37,3 +37,16 @@ export interface InstructionImageFile {
   file: File;
   preview: string;
 }
+
+export interface SearchFilters {
+  q: string;
+  cuisine?: string;
+  mealType?: string;
+  difficulty?: string;
+  prepTimeMax?: number;
+  cookTimeMax?: number;
+  minRating?: number;
+  sortBy?: string;
+  page?: number;
+  limit?: number;
+}

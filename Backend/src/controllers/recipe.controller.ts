@@ -1,7 +1,7 @@
 import type { RequestHandler } from "express";
 import Recipe from "../models/Recipe.model";
 import { uploadImageToCloudinary } from "../utils/uploadImage";
-import { generateSlug } from "../utils/helper";
+import { escapeRegex, generateSlug } from "../utils/helper";
 import { AuthRequest, CloudinaryUploadResult } from "../types";
 import { IngredientInput, InstructionInput } from "../types/recipe.type";
 import {
@@ -213,10 +213,8 @@ export const getRecipes: RequestHandler = async (req, res) => {
     const {
       page = 1,
       limit = 12,
-      tag,
       cuisine,
       difficulty,
-      search,
       userId,
       mealType,
     } = req.query;
@@ -243,15 +241,12 @@ export const getRecipes: RequestHandler = async (req, res) => {
       filter.userId = userId;
     }
 
-    // Search by title or description
-    if (search) {
-      filter.$text = { $search: search as string };
-    }
-
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(
+      100,
+      Math.max(1, parseInt(limit as string, 10) || 12),
+    );
     const skip = (pageNum - 1) * limitNum;
-
     const [recipes, total] = await Promise.all([
       Recipe.find(filter)
         .populate("userId", "name username avatar")
@@ -487,5 +482,128 @@ export const getMyRecipes: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Get my recipes error:", error);
     res.status(500).json({ error: "Failed to fetch recipes" });
+  }
+};
+
+export const searchRecipes: RequestHandler = async (req, res) => {
+  try {
+    const {
+      q, // search query
+      cuisine,
+      mealType,
+      difficulty,
+      prepTimeMax,
+      cookTimeMax,
+      tags,
+      minRating,
+      sortBy = "relevance", // relevance, newest, rating, popular
+      page = 1,
+      limit = 12,
+    } = req.query;
+
+    const filter: any = { isPublished: true };
+
+    // Text search (title, description, ingredients)
+    if (q) {
+      const escapedQuery = escapeRegex(q as string);
+      filter.$or = [
+        { title: { $regex: escapedQuery, $options: "i" } },
+        { description: { $regex: escapedQuery, $options: "i" } },
+        { tags: { $regex: escapedQuery, $options: "i" } },
+        { "ingredients.name": { $regex: escapedQuery, $options: "i" } },
+      ];
+    }
+
+    // Filter by cuisine
+    if (cuisine && cuisine !== "all") {
+      filter.cuisine = cuisine;
+    }
+
+    // Filter by meal type
+    if (mealType && mealType !== "all") {
+      filter.mealType = mealType;
+    }
+    // Filter by difficulty
+    if (difficulty && difficulty !== "all") {
+      filter.difficulty = difficulty;
+    }
+
+    // Filter by prep time
+    if (prepTimeMax) {
+      filter.prepTime = { $lte: Number(prepTimeMax) };
+    }
+
+    // Filter by cook time
+    if (cookTimeMax) {
+      filter.cookTime = { $lte: Number(cookTimeMax) };
+    }
+
+    // Filter by tags
+    if (tags) {
+      const tagArray = Array.isArray(tags) ? tags : [tags];
+      filter.tags = { $in: tagArray };
+    }
+
+    // Filter by minimum rating
+    if (minRating) {
+      filter.averageRating = { $gte: Number(minRating) };
+    }
+
+    // Sorting
+    let sort: any = {};
+    switch (sortBy) {
+      case "newest":
+        sort = { publishedAt: -1 };
+        break;
+      case "rating":
+        sort = { averageRating: -1, ratingCount: -1 };
+        break;
+      case "popular":
+        sort = { viewCount: -1 };
+        break;
+      case "quickest":
+        sort = { cookTime: 1, prepTime: 1 };
+        break;
+      default:
+        sort = { publishedAt: -1 }; // relevance (can add text score later)
+    }
+
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = parseInt(limit as string, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const [recipes, total] = await Promise.all([
+      Recipe.find(filter)
+        .populate("userId", "name username avatar")
+        .sort(sort)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Recipe.countDocuments(filter),
+    ]);
+    res.status(200).json({
+      success: true,
+      recipes,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+      filters: {
+        q,
+        cuisine,
+        mealType,
+        difficulty,
+        prepTimeMax,
+        cookTimeMax,
+        tags,
+        minRating,
+        sortBy,
+      },
+    });
+  } catch (error) {
+    console.error("Search recipes error:", error);
+    res.status(500).json({ error: "Failed to search recipes" });
   }
 };

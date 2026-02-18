@@ -7,6 +7,9 @@ import {
   Youtube,
   Instagram,
   Twitter,
+  Phone,
+  Mail,
+  MapPin,
 } from "lucide-react";
 
 export const NAV_ITEM = [
@@ -54,9 +57,44 @@ export const FOOTER_LINKS = {
     { label: "Safety", href: "/safety" },
   ],
   social: [
-    { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
-    { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
-    { icon: Youtube, label: "YouTube", href: "https://youtube.com" },
+    {
+      icon: Twitter,
+      label: "Twitter",
+      href: "https://twitter.com",
+      color: "#1DA1F2",
+    },
+    {
+      icon: Instagram,
+      label: "Instagram",
+      href: "https://instagram.com",
+      color: "#E1306C",
+    },
+    {
+      icon: Youtube,
+      label: "YouTube",
+      href: "https://youtube.com",
+      color: "#FF0000",
+    },
+  ],
+  getInTouch: [
+    {
+      icon: Phone,
+      label: "Phone",
+      desc: "+1 (123) 456-7890",
+      href: "tel:+11234567890",
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      desc: "contact@example.com",
+      href: "mailto:contact@example.com",
+    },
+    {
+      icon: MapPin,
+      label: "Address",
+      desc: "123 Main Street, City, Country",
+      href: "https://maps.google.com/?q=123 Main Street, City, Country",
+    },
   ],
 };
 
@@ -83,7 +121,6 @@ export const MEAL_TYPES = [
 ] as const;
 
 export const DIFFICULTY_LEVELS = ["Easy", "Medium", "Hard"] as const;
-
 
 export const TRENDING_TAGS = [
   "vegan",

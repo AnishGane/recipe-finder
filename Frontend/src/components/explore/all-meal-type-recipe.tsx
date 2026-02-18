@@ -1,21 +1,10 @@
-// import {
-//     Card,
-//     CardContent,
-//     CardDescription,
-//     CardHeader,
-//     CardTitle,
-// } from "@/components/ui/card"
 import RecipeCard from "../recipe-card";
 import { Loader2 } from "lucide-react";
-// import { Button } from "../ui/button";
-// import { Input } from "../ui/input";
 import type { Recipe } from "@/types/recipe.type";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchRecipesByMealType, getMealTypeList } from "@/api/api";
-
-
 
 const AllMealTypeRecipe = () => {
     const [activeTab, setActiveTab] = useState("allmealtype");
@@ -54,7 +43,6 @@ const AllMealTypeRecipe = () => {
                     </TabsList>
                 </Tabs>
             </div>
-
 
             <div>
                 <h1 className="mt-8 mb-4 text-3xl text-foreground font-semibold tracking-tight font-sn-pro">

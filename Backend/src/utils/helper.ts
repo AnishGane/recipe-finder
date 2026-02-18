@@ -8,3 +8,8 @@ export const generateSlug = (text: string): string => {
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 };
+
+// helper function or import from a utility module
+export function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
