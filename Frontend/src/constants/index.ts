@@ -84,11 +84,6 @@ export const MEAL_TYPES = [
 
 export const DIFFICULTY_LEVELS = ["Easy", "Medium", "Hard"] as const;
 
-export const stats = [
-  { name: "Active Users", value: "25k" },
-  { name: "Recipes Shared", value: "1.3k" },
-  { name: "Chef Members", value: "500" },
-];
 
 export const TRENDING_TAGS = [
   "vegan",

@@ -55,18 +55,17 @@ const Navbar = () => {
                     ))}
                 </ul>
 
-                <div className="flex items-center justify-center gap-4">
+                <div className="flex items-center justify-center gap-3">
                     <ModeToggle />
                     {user && (
-                        <Button variant={"destructive"} onClick={logout} aria-label="Log out" className='rounded-lg'>
+                        <Button variant={"ghost"} onClick={logout} aria-label="Log out" className='rounded-full hover:bg-red-500/60! hover:text-background cursor-pointer text-foreground'>
                             <LogOutIcon />
                             <span className="sr-only">Log out</span>
                         </Button>
                     )}
                     {/* Create Recipe CTA */}
-                    <Button onClick={() => navigate('/create-recipe')} className='bg-secondary  hover:bg-secondary/90 cursor-pointer rounded-full font-normal p-4'>
-                        <Plus className='size-4 -mr-1 text-secondary-foreground' />
-                        <span className='hidden md:block'>Create Recipe</span>
+                    <Button onClick={() => navigate('/create-recipe')} variant={"ghost"} className='hover:bg-muted-foreground/60! rounded-full cursor-pointer text-foreground'>
+                        <Plus className='size-4' />
                         <span className='sr-only'>create recipe</span>
                     </Button>
 

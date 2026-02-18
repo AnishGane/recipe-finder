@@ -1,4 +1,5 @@
-import { stats } from "@/constants";
+import { Link } from "react-router-dom";
+import { Button } from "../ui/button";
 
 const HeroBanner = () => {
     return (
@@ -15,18 +16,11 @@ const HeroBanner = () => {
             <div className="absolute inset-0 flex flex-col items-center px-6 justify-center gap-4 text-center text-white">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold font-sn-pro">Find your next favourite <br /> meal.</h1>
                 <p className="text-white/80 text-sm sm:text-base">Join a community of 50,000+ home cooks sharing their best secrets.</p>
-                <div>
-                    <div className="flex items-center justify-center mt-12">
-                        {stats.map((stat) => {
-                            return (
-                                <div className=" flex flex-col p-4 justify-center items-center">
-                                    <p className="text-5xl font-medium">{stat.value} <sup className="-ml-3">+</sup> </p>
-                                    <h1 className="-ml-4">{stat.name}</h1>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
+                {/* CTA */}
+                <Link to={"/communities"}>
+                    <Button className=" text-black cursor-pointer  tracking-wide mt-8 p-6" variant={"secondary"}>Explore Communities</Button>
+                </Link>
+                {/* <p>See the COMMUNITIES page, for discovering recipes posted by all the chefs & people from all over the world</p> */}
             </div>
         </div>
     );
