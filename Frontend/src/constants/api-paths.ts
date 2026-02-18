@@ -22,5 +22,6 @@ export const API_PATHS = {
 
     GET_CUISINE_LIST: "/api/recipes/cuisine-list",
     GET_MEAL_TYPES: "/api/recipes/mealtype-list",
+    SEARCH: "/api/recipes/search",
   },
 };

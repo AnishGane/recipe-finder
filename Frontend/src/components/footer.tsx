@@ -6,11 +6,11 @@ const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="bg-muted/20 border-t border-border/20 py-12">
+        <footer className="bg-muted/20 border-t border-border/20 py-6">
             <div className="w-full px-4 sm:px-8 md:px-10 lg:px-12 py-6 ">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 justify-between">
+                <div className="grid grid-cols-1  md:grid-cols-3 gap-8 mb-8 justify-between">
                     {/* Brand Section */}
-                    <div className="max-w-md w-full">
+                    <div className="max-w-md w-full ">
                         {/* Logo */}
                         <Link to={"/"}>
                             <div className='flex items-center gap-2'>
@@ -25,8 +25,37 @@ const Footer = () => {
                         <p className="text-sm mt-3.5 text-foreground/80">
                             The world's largest community for home cooks to discover and share amazing recipes.
                         </p>
+
+                        {/* Social Links */}
+                        <div>
+                            <h4 className="font-medium text-foreground mt-4 mb-2">Social</h4>
+                            <div className="flex gap-3">
+                                {FOOTER_LINKS.social.map((link) => {
+                                    const Icon = link.icon;
+                                    const bgColor = link.color
+                                    return (
+                                        <div
+                                            key={link.label}
+                                            className="p-3 text-white rounded-lg"
+                                            style={{ backgroundColor: bgColor }}
+                                        >
+                                            <a
+
+                                                href={link.href}
+                                                aria-label={link.label}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className=""
+                                            >
+                                                <Icon className="size-5" />
+                                            </a>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 place-items-center">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Platform Links */}
                         <div>
                             <h4 className="font-semibold text-foreground mb-4">Platform</h4>
@@ -62,26 +91,26 @@ const Footer = () => {
                         </div>
                     </div>
 
-                    {/* Social Links */}
-                    <div className="place-items-center">
-                        <h4 className="font-semibold text-foreground mb-4">Social</h4>
-                        <div className="flex gap-3">
-                            {FOOTER_LINKS.social.map((link) => {
+                    {/* Get Info / Contact */}
+                    <div className="">
+                        <h4 className="font-semibold text-foreground mb-4">Get in Touch</h4>
+                        <ul className="space-y-3">
+                            {FOOTER_LINKS.getInTouch.map((link) => {
                                 const Icon = link.icon;
                                 return (
-                                    <a
-                                        key={link.label}
-                                        href={link.href}
-                                        aria-label={link.label}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-foreground/80 hover:text-secondary transition-colors"
-                                    >
-                                        <Icon className="size-5" />
-                                    </a>
+                                    <li key={link.label} className="flex items-center gap-3">
+                                        <div className="mt-0.5  p-3 rounded-lg bg-accent">
+                                            <Icon className="size-5 text-background" />
+                                        </div>
+                                        <a href={link.href} target="_blank" rel="noopener noreferrer">
+                                            <h5 className="text-sm font-medium text-foreground">{link.label}</h5>
+                                            <p className="text-sm text-foreground/80">{link.desc}</p>
+                                        </a>
+                                    </li>
                                 )
-                            })}
-                        </div>
+                            }
+                            )}
+                        </ul>
                     </div>
                 </div>
             </div>

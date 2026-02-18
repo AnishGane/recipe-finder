@@ -8,6 +8,7 @@ import {
   getMyRecipes,
   // getRecipeBySlug,
   getRecipes,
+  searchRecipes,
 } from "../controllers/recipe.controller";
 
 const recipeRouter = express.Router();
@@ -22,4 +23,5 @@ recipeRouter.get("/my/recipes", auth, getMyRecipes);
 
 recipeRouter.get("/cuisine-list", getCuisineList);
 recipeRouter.get("/mealtype-list", getMealTypeList);
+recipeRouter.get("/search", searchRecipes);
 export default recipeRouter;
