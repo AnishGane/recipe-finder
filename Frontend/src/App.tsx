@@ -10,11 +10,12 @@ import SavedRecipes from "./pages/saved-recipes"
 import Communities from "./pages/communities"
 import CreateRecipePage from "./components/create-recipe"
 import Explore from "./pages/explore"
+import { Toaster } from "react-hot-toast"
 
 const App = () => {
   return (
     <main className="container min-w-full min-h-screen bg-background mx-auto">
-
+      <Toaster />
       <Routes>
         {/* Protected Routes - Only accessible when logged in */}
         <Route

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
-import { CookingPot, LogOutIcon, Plus } from 'lucide-react'
+import { CookingPot, LogOutIcon, Plus, User } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from '@/context/auth-context'
 import { ModeToggle } from './mode-switcher'
@@ -55,7 +55,7 @@ const Navbar = () => {
                     ))}
                 </ul>
 
-                <div className="flex items-center justify-center gap-3">
+                <div className="flex items-center justify-center gap-2">
                     <ModeToggle />
                     {user && (
                         <Button variant={"ghost"} onClick={logout} aria-label="Log out" className='rounded-full hover:bg-red-500/60! hover:text-background cursor-pointer text-foreground'>
@@ -78,8 +78,8 @@ const Navbar = () => {
                             </AvatarFallback>
                         </Avatar>
                     ) : (
-                        <div>
-                            hello
+                        <div className='bg-neutral-200 p-1.5   rounded-full'>
+                            <User className='text-neutral-600' />
                         </div>
                     )}
                 </div>
