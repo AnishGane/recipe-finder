@@ -59,7 +59,7 @@ export async function sendRegistrationEmail(userEmail: string, name: string) {
     const text = `Hi ${name},\n\nWelcome to Flavorly! Your account has been created successfully.\n\nBest regards,\nThe Flavorly Team`;
 
     await sendEmail(userEmail, subject, text, html);
-    console.log(`✅ Registration email sent to ${userEmail}`);
+    console.log(`✅ Registration email sent successfully`);
   } catch (error) {
     console.error("❌ Failed to send registration email:", error);
     throw error;

@@ -88,9 +88,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // Send welcome email (don't wait for it)
     sendRegistrationEmail(user.email, user.name).catch((error) => {
-      console.error("Background email error:", error);
+      console.error(
+        "Background email error:",
+        error?.message || "Unknown error",
+      );
     });
-
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error("JWT_SECRET is not configured");

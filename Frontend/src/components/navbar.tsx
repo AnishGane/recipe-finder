@@ -78,10 +78,10 @@ const Navbar = () => {
                             </AvatarFallback>
                         </Avatar>
                     ) : (
-                        <div className='bg-neutral-200 p-1.5   rounded-full'>
-                            <User className='text-neutral-600' />
-                        </div>
-                    )}
+                        <div className='bg-neutral-100 dark:bg-neutral-700 p-1.5 rounded-full ring-1 ring-secondary'>
+                            <User className='text-neutral-600 dark:text-neutral-300' />
+                            <span className='sr-only'>User profile</span>
+                        </div>)}
                 </div>
             </div>
         </div >
