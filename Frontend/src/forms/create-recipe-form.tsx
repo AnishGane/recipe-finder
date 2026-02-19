@@ -28,7 +28,7 @@ import {
 import { useFieldArray } from "react-hook-form";
 import { CUISINES, DIFFICULTY_LEVELS, MEAL_TYPES } from "@/constants";
 import { recipeFormSchema, type RecipeFormValues } from "@/validations/create-recipe-schema";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createRecipe } from "@/api/api";
 import type { InstructionImageFile } from "@/types/recipe.type";
 
@@ -72,9 +72,14 @@ const CreateRecipeForm = () => {
 
     const instructions = form.watch('instructions');
 
+    const queryClient = useQueryClient();
+
     const { mutateAsync: createRecipeMutate, isPending: isCreatingRecipe } = useMutation({
         mutationKey: ['createRecipe'],
         mutationFn: (formData: FormData) => createRecipe(formData),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['recipes'] });
+        },
     });
 
     const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -238,6 +243,9 @@ const CreateRecipeForm = () => {
 
             if (response.success) {
                 form.reset();
+                setHeroImage(null);
+                setHeroImageFile(null);
+                setInstructionImageFiles([]);
             }
         } catch (error) {
             console.error('Failed to create recipe:', error);
