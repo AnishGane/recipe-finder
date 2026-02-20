@@ -1,6 +1,7 @@
 import { FOOTER_LINKS } from "@/constants"
 import { CookingPot } from "lucide-react";
 import { Link } from "react-router-dom";
+import FooterTextHover from "./text-hover-effect-demo";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -109,6 +110,8 @@ const Footer = () => {
                     </div>
                 </div>
             </div>
+
+            <FooterTextHover />
 
             {/* Copyright */}
             <div>

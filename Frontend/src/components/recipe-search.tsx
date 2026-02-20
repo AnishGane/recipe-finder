@@ -27,8 +27,19 @@ import RecipeCard from "@/components/recipe-card";
 import { Loader2 } from "lucide-react";
 import type { SearchFilters, Recipe } from "@/types/recipe.type";
 import { Card } from "./ui/card";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+import { cn } from "@/lib/utils";
 
 const RecipeSearch = () => {
+    const [page, setPage] = useState(1);
     const [filters, setFilters] = useState<SearchFilters>({
         q: "",
         cuisine: "all",
@@ -38,6 +49,8 @@ const RecipeSearch = () => {
         cookTimeMax: 180,
         minRating: 0,
         sortBy: "newest",
+        page: 1,
+        limit: 12
     });
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -49,6 +62,7 @@ const RecipeSearch = () => {
     const debouncedFilters = {
         ...filters,
         q: debouncedQuery, // Use debounced query instead of immediate value
+        page, // Include the current page
     };
 
     const hasActiveFilters = () => {
@@ -78,7 +92,7 @@ const RecipeSearch = () => {
 
     // Search recipes with filters - Use debounced filters
     const { data, isLoading, error } = useQuery({
-        queryKey: ["search", debouncedFilters], // Use entire debounced filters object
+        queryKey: ["search", debouncedFilters, page], // Use entire debounced filters object
         queryFn: () => searchRecipes(debouncedFilters),
         staleTime: 1000 * 60 * 5,
     });
@@ -86,6 +100,7 @@ const RecipeSearch = () => {
     const cuisines = cuisinesData?.cuisines || [];
     const mealTypes = mealTypesData?.mealTypes || [];
     const recipes = data?.recipes || [];
+    const pagination = data?.pagination;
 
     const clearFilters = () => {
         setFilters({
@@ -97,8 +112,69 @@ const RecipeSearch = () => {
             cookTimeMax: 180,
             minRating: 0,
             sortBy: "newest",
+            page: 1,
+            limit: 12
         });
+        setPage(1);
     };
+
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    const handlePreviousPage = () => {
+        if (page > 1) {
+            handlePageChange(page - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (pagination && page < pagination.pages) {
+            handlePageChange(page + 1);
+        }
+    };
+
+    // Generate Page number to be displayed dynamically
+    const getPageNumbers = () => {
+        if (!pagination) return [];
+
+        const { pages } = pagination;
+        const pageNumbers: (number | 'ellipsis')[] = [];
+        const maxVisible = 5;
+
+        if (pages <= maxVisible) {
+            // Show all pages if total is small
+            for (let i = 1; i <= pages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            // Always show first page
+            pageNumbers.push(1);
+
+            if (page > 3) {
+                pageNumbers.push('ellipsis');
+            }
+
+            // Show pages around current page
+            const start = Math.max(2, page - 1);
+            const end = Math.min(pages - 1, page + 1);
+
+            for (let i = start; i <= end; i++) {
+                pageNumbers.push(i);
+            }
+
+            if (page < pages - 2) {
+                pageNumbers.push('ellipsis');
+            }
+
+            // Always show last page
+            if (pages > 1) {
+                pageNumbers.push(pages);
+            }
+        }
+        return pageNumbers;
+    }
 
     const activeFilterCount = () => {
         let count = 0;
@@ -123,12 +199,18 @@ const RecipeSearch = () => {
                             placeholder="Search recipes, ingredients, cuisines..."
                             value={filters.q}
                             autoFocus
-                            onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+                            onChange={(e) => {
+                                setFilters({ ...filters, q: e.target.value });
+                                setPage(1) // reset page to 1 on search
+                            }}
                             className="rounded-md pl-10 pr-10 outline-none border-none placeholder:text-foreground/60 "
                         />
                         {filters.q && (
                             <button
-                                onClick={() => setFilters({ ...filters, q: "" })}
+                                onClick={() => {
+                                    setFilters({ ...filters, q: "" });
+                                    setPage(1)
+                                }}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                             >
                                 <X className="size-4" />
@@ -167,10 +249,10 @@ const RecipeSearch = () => {
                                     <Label>Sort By</Label>
                                     <Select
                                         value={filters.sortBy}
-                                        onValueChange={(value) =>
-                                            setFilters({ ...filters, sortBy: value })
-                                        }
-
+                                        onValueChange={(value) => {
+                                            setFilters({ ...filters, sortBy: value });
+                                            setPage(1);
+                                        }}
                                     >
                                         <SelectTrigger className="border-none cursor-pointer">
                                             <SelectValue />
@@ -189,9 +271,10 @@ const RecipeSearch = () => {
                                     <Label>Cuisine</Label>
                                     <Select
                                         value={filters.cuisine}
-                                        onValueChange={(value) =>
-                                            setFilters({ ...filters, cuisine: value })
-                                        }
+                                        onValueChange={(value) => {
+                                            setFilters({ ...filters, cuisine: value });
+                                            setPage(1);
+                                        }}
                                     >
                                         <SelectTrigger className="border-none cursor-pointer">
                                             <SelectValue />
@@ -212,9 +295,10 @@ const RecipeSearch = () => {
                                     <Label>Meal Type</Label>
                                     <Select
                                         value={filters.mealType}
-                                        onValueChange={(value) =>
-                                            setFilters({ ...filters, mealType: value })
-                                        }
+                                        onValueChange={(value) => {
+                                            setFilters({ ...filters, mealType: value });
+                                            setPage(1);
+                                        }}
                                     >
                                         <SelectTrigger className="border-none cursor-pointer">
                                             <SelectValue />
@@ -235,9 +319,10 @@ const RecipeSearch = () => {
                                     <Label>Difficulty</Label>
                                     <Select
                                         value={filters.difficulty}
-                                        onValueChange={(value) =>
-                                            setFilters({ ...filters, difficulty: value })
-                                        }
+                                        onValueChange={(value) => {
+                                            setFilters({ ...filters, difficulty: value });
+                                            setPage(1);
+                                        }}
                                     >
                                         <SelectTrigger className="border-none cursor-pointer">
                                             <SelectValue />
@@ -258,9 +343,10 @@ const RecipeSearch = () => {
                                     </Label>
                                     <Slider
                                         value={[filters.prepTimeMax ?? 120]}
-                                        onValueChange={(value) =>
-                                            setFilters({ ...filters, prepTimeMax: value[0] })
-                                        }
+                                        onValueChange={(value) => {
+                                            setFilters({ ...filters, prepTimeMax: value[0] });
+                                            setPage(1);
+                                        }}
                                         max={120}
                                         step={5}
                                     />
@@ -273,9 +359,10 @@ const RecipeSearch = () => {
                                     </Label>
                                     <Slider
                                         value={[filters.cookTimeMax ?? 180]}
-                                        onValueChange={(value) =>
-                                            setFilters({ ...filters, cookTimeMax: value[0] })
-                                        }
+                                        onValueChange={(value) => {
+                                            setFilters({ ...filters, cookTimeMax: value[0] });
+                                            setPage(1);
+                                        }}
                                         max={180}
                                         step={5}
                                     />
@@ -286,9 +373,10 @@ const RecipeSearch = () => {
                                     <Label>Minimum Rating: {filters.minRating || 0}★</Label>
                                     <Slider
                                         value={[filters.minRating || 0]}
-                                        onValueChange={(value) =>
-                                            setFilters({ ...filters, minRating: value[0] })
-                                        }
+                                        onValueChange={(value) => {
+                                            setFilters({ ...filters, minRating: value[0] });
+                                            setPage(1);
+                                        }}
                                         max={5}
                                         step={0.5}
                                     />
@@ -308,58 +396,65 @@ const RecipeSearch = () => {
                         </SheetContent>
                     </Sheet>
                 </div>
-            </Card>
+            </Card >
 
             {/* Active Filters Display */}
-            {(debouncedQuery || activeFilterCount() > 0) && (
-                <div className="flex flex-wrap gap-2 mb-6 items-center">
-                    <span className="text-sm text-muted-foreground">Active filters:</span>
-                    {debouncedQuery && (
-                        <Badge variant="secondary">
-                            Search: "{debouncedQuery}"
-                            <button
-                                onClick={() => setFilters({ ...filters, q: "" })}
-                                className="ml-1"
-                            >
-                                <X className="size-3" />
-                            </button>
-                        </Badge>
-                    )}
-                    {filters.cuisine !== "all" && (
-                        <Badge variant="secondary" className="capitalize">
-                            {filters.cuisine}
-                            <button
-                                onClick={() => setFilters({ ...filters, cuisine: "all" })}
-                                className="ml-1"
-                            >
-                                <X className="size-3" />
-                            </button>
-                        </Badge>
-                    )}
-                    {filters.mealType !== "all" && (
-                        <Badge variant="secondary" className="capitalize">
-                            {filters.mealType}
-                            <button
-                                onClick={() => setFilters({ ...filters, mealType: "all" })}
-                                className="ml-1"
-                            >
-                                <X className="size-3" />
-                            </button>
-                        </Badge>
-                    )}
-                    {filters.difficulty !== "all" && (
-                        <Badge variant="secondary" className="capitalize">
-                            {filters.difficulty}
-                            <button
-                                onClick={() => setFilters({ ...filters, difficulty: "all" })}
-                                className="ml-1"
-                            >
-                                <X className="size-3" />
-                            </button>
-                        </Badge>
-                    )}
-                </div>
-            )}
+            {
+                (debouncedQuery || activeFilterCount() > 0) && (
+                    <div className="flex flex-wrap gap-2 mb-6 items-center">
+                        <span className="text-sm text-muted-foreground">Active filters:</span>
+                        {debouncedQuery && (
+                            <Badge variant="secondary">
+                                Search: "{debouncedQuery}"
+                                <button
+                                    onClick={() => {
+                                        setFilters({ ...filters, q: "" });
+                                        setPage(1);
+                                    }}
+                                    className="ml-1"
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </Badge>
+                        )}                        {filters.cuisine !== "all" && (
+                            <Badge variant="secondary" className="capitalize">
+                                {filters.cuisine}
+                                <button
+                                    onClick={() => {
+                                        setFilters({ ...filters, cuisine: "all" });
+                                        setPage(1);
+                                    }}
+                                    className="ml-1"
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </Badge>
+                        )}
+                        {filters.mealType !== "all" && (
+                            <Badge variant="secondary" className="capitalize">
+                                {filters.mealType}
+                                <button
+                                    onClick={() => { setFilters({ ...filters, mealType: "all" }); setPage(1); }}
+                                    className="ml-1"
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </Badge>
+                        )}
+                        {filters.difficulty !== "all" && (
+                            <Badge variant="secondary" className="capitalize">
+                                {filters.difficulty}
+                                <button
+                                    onClick={() => { setFilters({ ...filters, difficulty: "all" }); setPage(1); }}
+                                    className="ml-1"
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </Badge>
+                        )}
+                    </div>
+                )
+            }
 
             {/* Results */}
             <div>
@@ -391,15 +486,53 @@ const RecipeSearch = () => {
                                 }
                             </p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {recipes.map((recipe: Recipe) => (
-                                <RecipeCard key={recipe._id} recipe={recipe} />
-                            ))}
+                        <div className="space-y-12">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {recipes.map((recipe: Recipe) => (
+                                    <RecipeCard key={recipe._id} recipe={recipe} />
+                                ))}
+                            </div>
+                            {/* Pagination */}
+                            {pagination && pagination.pages > 1 && (
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                onClick={handlePreviousPage}
+                                                className={cn("text-foreground", page === 1 ? "pointer-events-none opacity-50 text-foreground" : "cursor-pointer")}
+                                            />
+                                        </PaginationItem>
+
+                                        {getPageNumbers().map((pageNum, index) => (
+                                            <PaginationItem key={index}>
+                                                {pageNum === 'ellipsis' ? (
+                                                    <PaginationEllipsis />
+                                                ) : (
+                                                    <PaginationLink
+                                                        onClick={() => handlePageChange(pageNum)}
+                                                        isActive={page === pageNum}
+                                                        className="cursor-pointer border-border/40 hover:bg-muted/90"
+                                                    >
+                                                        {pageNum}
+                                                    </PaginationLink>
+                                                )}
+                                            </PaginationItem>
+                                        ))}
+
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                onClick={handleNextPage}
+                                                className={cn("text-foreground", page === pagination.pages ? "pointer-events-none opacity-50" : "cursor-pointer")}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            )}
                         </div>
                     </>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
