@@ -136,6 +136,8 @@ recipeSchema.index({ userId: 1 });
 recipeSchema.index({ tags: 1 });
 recipeSchema.index({ cuisine: 1 });
 recipeSchema.index({ isPublished: 1, publishedAt: -1 });
+recipeSchema.index({ averageRating: -1 });
+recipeSchema.index({ viewCount: -1 });
 
 // Referential cleanup: when a Recipe is deleted, remove all RecipeLike and RecipeSave entries
 const cleanupRecipeLikesAndSaves = async (
